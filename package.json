@@ -10,10 +10,13 @@
   },
   "dependencies": {
     "@solidjs/router": "^0.15.3",
+    "handsontable": "^16.0.1",
     "jschardet": "^3.1.4",
     "solid-js": "^1.9.7"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.11",
+    "tailwindcss": "^4.1.11",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-solid": "^2.11.7"
