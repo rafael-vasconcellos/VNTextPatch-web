@@ -15,7 +15,7 @@ export class MyWASM {
     public isInitialized: boolean = false
     public dotnetRuntime: any
     constructor() { 
-        (import('/wasm/dotnet.js' as any)).then(async dotnet => { 
+        (import('../../wasm/dotnet.js' as any)).then(async({ dotnet }) => { 
             this.dotnetRuntime = await dotnet.create()
             this.isInitialized = true
         }).catch(e => { 
