@@ -26,9 +26,10 @@ export class MyWASM {
     private fileSystem() { return this.dotnetRuntime?.Module.FS }
 
     private decodeUint8Array(uint8Array: Uint8Array) { 
-        const detected = jschardet.detect(uint8Array);
-        console.log('Encoding detectado:', detected);
-        
+        const binaryString = new TextDecoder('latin1').decode(uint8Array);
+        const detected = jschardet.detect(binaryString);
+        //console.log('Encoding detectado:', detected);
+
         if (detected.encoding) {
             const decoder = new TextDecoder(detected.encoding);
             return decoder.decode(uint8Array);
@@ -78,7 +79,8 @@ export class VNTextPatch extends MyWASM {
     }
 
     async extractLocal() { 
-        const outputFiles = new Proxy({} as Record<string, any>, { 
+        const outputFiles = {} as Record<string, any>
+        const proxy = new Proxy(outputFiles, { 
             get(target, prop: string, _) { return target[prop] },
             set(target, prop: string, value, _) { 
                 try { 
@@ -94,7 +96,9 @@ export class VNTextPatch extends MyWASM {
         })
         await this.addFiles('fileInput')
             .then(() => this.execute(['extractlocal', 'input', 'output']))
-            .then(() => this.getOutputFiles(outputFiles))
+            .then(() => this.getOutputFiles(proxy))
+        
+        //console.log(outputFiles)
         return outputFiles
     }
 }
