@@ -2,7 +2,7 @@
 
 
 body {
-    background-color: #0d1117;
+    background-color: oklch(14.5% 0 0);
     /* background-color: #161B22; */
     color: #fff;
 }
