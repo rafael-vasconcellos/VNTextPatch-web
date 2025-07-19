@@ -82,7 +82,8 @@ export class VNTextPatch extends MyWASM {
         const outputFiles = {} as Record<string, any>
         const proxy = new Proxy(outputFiles, { 
             get(target, prop: string, _) { return target[prop] },
-            set(target, prop: string, value, _) { 
+            set(target, oProp: string, value, _) { 
+                const prop = oProp.replace('.json', '')
                 try { 
                     const parsed: any[] = JSON.parse(value) 
                     target[prop] = parsed.map && parsed.map(item => { 
