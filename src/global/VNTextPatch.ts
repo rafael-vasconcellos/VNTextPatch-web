@@ -28,6 +28,7 @@ export class MyWASM {
     }
 
     private async getFileSystem(): Promise<typeof FS> { 
+        await new Promise(res => setTimeout(res, 2000))
         const runtime = await this.dotnetRuntime
         if (!runtime) { throw new Error('Failed to use .NET virtual filesystem: .NET not initialized.') }
         return runtime?.Module.FS 
@@ -48,12 +49,17 @@ export class MyWASM {
         return decoder.decode(uint8Array);
     }
 
-    protected async listDir(dir: string) { 
+    protected async addFilesFromList(files: FileList) { 
         const fileSystem = await this.getFileSystem()
-        return await fileSystem.readdir(dir)?.filter((folderItem: string) => { 
-            const path_mode = fileSystem.stat(dir + '/' + folderItem).mode
-            return folderItem !== '.' && folderItem != '..' && !fileSystem.isDir(path_mode)
-        })
+        if (!fileSystem.analyzePath("input")?.exists) { fileSystem.mkdir("input") }
+        if (!fileSystem.analyzePath("output")?.exists) { fileSystem.mkdir("output") }
+        if (files.length > 0) { 
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const arrayBuffer = await file.arrayBuffer();
+                fileSystem.writeFile("input/" + file.name, new Uint8Array(arrayBuffer));
+            }
+        }
     }
 
     protected async getFolderFiles(folderName: string, outputFiles: Record<string, string> = {}) { 
@@ -70,7 +76,15 @@ export class MyWASM {
         return outputFiles
     }
 
-    protected async cleanDir(path: string) { 
+    async listDir(dir: string) { 
+        const fileSystem = await this.getFileSystem()
+        return await fileSystem.readdir(dir)?.filter((folderItem: string) => { 
+            const path_mode = fileSystem.stat(dir + '/' + folderItem).mode
+            return folderItem !== '.' && folderItem != '..' && !fileSystem.isDir(path_mode)
+        })
+    }
+
+    async cleanDir(path: string) { 
         const fileSystem = await this.getFileSystem()
         const files = fileSystem.readdir(path);
         for (const f of files) {
@@ -83,24 +97,21 @@ export class MyWASM {
         }
     }
 
-    async addFiles(elementId: string) { 
-        const fileSystem = await this.getFileSystem()
-        const fileInput = document.getElementById(elementId) as HTMLInputElement
-        const files = fileInput?.files ?? []
-
-        if (!fileSystem.analyzePath("input")?.exists) { fileSystem.mkdir("input") }
-        if (!fileSystem.analyzePath("output")?.exists) { fileSystem.mkdir("output") }
-        if (files.length > 0) {
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const arrayBuffer = await file.arrayBuffer();
-                fileSystem.writeFile("input/" + file.name, new Uint8Array(arrayBuffer));
-            }
-        }
-    }
-
     async getOutputFiles(outputFiles: Record<string, string> = {}) { 
         return await this.getFolderFiles('output', outputFiles)
+    }
+
+    async addFilesFromInput(elementId: string) { 
+        const fileInput = document.getElementById(elementId) as HTMLInputElement
+        if (fileInput.files?.length) { return await this.addFilesFromList(fileInput.files) }
+    }
+
+    async addFiles({ files, elementId }: { 
+        files?: FileList
+        elementId?: string
+    }) { 
+        if (files) { return await this.addFilesFromList(files) }
+        else if (elementId) { return await this.addFilesFromInput(elementId) }
     }
 }
 
@@ -115,7 +126,7 @@ export class VNTextPatch extends MyWASM {
         }
     }
 
-    async extractLocal<T= ILineJSON[]>(): Promise<Record<string, T>> { 
+    async extractLocal<T= ILineJSON[]>(files?: FileList): Promise<Record<string, T>> { 
         const outputFiles = {} as Record<string, any>
         const proxy = new Proxy(outputFiles, { 
             get(target, prop: string, _) { return target[prop] },
@@ -126,29 +137,26 @@ export class VNTextPatch extends MyWASM {
                 return true
             }
         })
-        await this.addFiles('fileInput')
+        await this.addFiles({ 
+            files,
+            elementId: 'fileInput'
+        })
             .then(() => this.execute(['extractlocal', 'input', 'output']))
             .then(() => this.getOutputFiles(proxy))
         
         //console.log(outputFiles)
-        this.cleanDir('input')
-        this.cleanDir('output')
+        this.cleanDir('input'); this.cleanDir('output')
         return outputFiles
     }
 
-    async extractLocalAsSheets() { 
-        const outputFiles = await this.extractLocal<ILineJSON[] | string[][]>()
+    async extractLocalAsSheets(files?: FileList) { 
+        const outputFiles = await this.extractLocal<ILineJSON[] | string[][]>(files)
         for (const fileName in outputFiles) { 
             outputFiles[fileName] = outputFiles[fileName].map((line) => { 
                 return [ (line as ILineJSON).message, '', '', '', '' ]
             })
         }
-        console.log(outputFiles)
+        //console.log(outputFiles)
         return outputFiles as Record<string, string[][]>
-    }
-
-    getSrcFiles() { 
-        const el = document.getElementById('fileInput') as HTMLInputElement
-        return el?.files
     }
 }
