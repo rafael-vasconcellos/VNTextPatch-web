@@ -18,17 +18,20 @@ export function downloadFile(fileContent: string, fileName: string = 'file', fil
 
 export class MyWASM { 
     public isInitialized: boolean = false
-    public dotnetRuntime: any
+    public dotnetRuntime?: Promise<any>
     constructor() { 
         (import('../../wasm/dotnet.js' as any)).then(async({ dotnet }) => { 
-            this.dotnetRuntime = await dotnet.create()
-            this.isInitialized = true
+            this.dotnetRuntime = dotnet.create()
         }).catch(e => { 
             console.error('Failed to initialize .NET:', e);
         })
     }
 
-    private fileSystem() { return this.dotnetRuntime?.Module.FS }
+    private async getFileSystem(): Promise<typeof FS> { 
+        const runtime = await this.dotnetRuntime
+        if (!runtime) { throw new Error('Failed to use .NET virtual filesystem: .NET not initialized.') }
+        return runtime?.Module.FS 
+    }
 
     private decodeUint8Array(uint8Array: Uint8Array) { 
         const binaryString = new TextDecoder('latin1').decode(uint8Array);
@@ -46,16 +49,20 @@ export class MyWASM {
     }
 
     protected async listDir(dir: string) { 
-        return await this.fileSystem()?.readdir(dir)?.filter((folderItem: string) => ( 
-            folderItem !== '.' && folderItem != '..' && !this.fileSystem().isDir(dir + '/' + folderItem)
-        ))
+        const fileSystem = await this.getFileSystem()
+        return await fileSystem.readdir(dir)?.filter((folderItem: string) => { 
+            const path_mode = fileSystem.stat(dir + '/' + folderItem).mode
+            return folderItem !== '.' && folderItem != '..' && !fileSystem.isDir(path_mode)
+        })
     }
 
     protected async getFolderFiles(folderName: string, outputFiles: Record<string, string> = {}) { 
-        const fileNames = await this.fileSystem().readdir(folderName)
+        const fileSystem = await this.getFileSystem()
+        const fileNames = await fileSystem.readdir(folderName)
         fileNames.forEach(async (folderItem: string) => { 
-            if (folderItem !== '.' && folderItem != '..' && !this.fileSystem().isDir(folderName + '/' + folderItem)) { 
-                const file: Uint8Array = this.fileSystem().readFile(folderName + '/' + folderItem)
+            const path_mode = fileSystem.stat(folderName + '/' + folderItem).mode
+            if (folderItem !== '.' && folderItem != '..' && !fileSystem.isDir(path_mode)) { 
+                const file: Uint8Array = fileSystem.readFile(folderName + '/' + folderItem)
                 const fileString = this.decodeUint8Array(file)
                 outputFiles[folderItem] = fileString
             }
@@ -63,29 +70,31 @@ export class MyWASM {
         return outputFiles
     }
 
-    protected cleanDir(path: string) { 
-        const files = this.fileSystem().readdir(path);
+    protected async cleanDir(path: string) { 
+        const fileSystem = await this.getFileSystem()
+        const files = fileSystem.readdir(path);
         for (const f of files) {
             if (f !== '.' && f !== '..') {
                 const fullPath = path + '/' + f;
-                if (this.fileSystem().isFile(this.fileSystem().stat(fullPath).mode)) {
-                    this.fileSystem().unlink(fullPath);
+                if (fileSystem.isFile(fileSystem.stat(fullPath).mode)) {
+                    fileSystem.unlink(fullPath);
                 }
             }
         }
     }
 
     async addFiles(elementId: string) { 
+        const fileSystem = await this.getFileSystem()
         const fileInput = document.getElementById(elementId) as HTMLInputElement
         const files = fileInput?.files ?? []
 
-        if (!this.fileSystem().analyzePath("input")?.exists) { this.fileSystem().mkdir("input") }
-        if (!this.fileSystem().analyzePath("output")?.exists) { this.fileSystem().mkdir("output") }
+        if (!fileSystem.analyzePath("input")?.exists) { fileSystem.mkdir("input") }
+        if (!fileSystem.analyzePath("output")?.exists) { fileSystem.mkdir("output") }
         if (files.length > 0) {
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const arrayBuffer = await file.arrayBuffer();
-                this.fileSystem().writeFile("input/" + file.name, new Uint8Array(arrayBuffer));
+                fileSystem.writeFile("input/" + file.name, new Uint8Array(arrayBuffer));
             }
         }
     }
@@ -97,7 +106,8 @@ export class MyWASM {
 
 export class VNTextPatch extends MyWASM { 
     async execute(args: string[]) { 
-        const exitCode = await this.dotnetRuntime.runMain('VNTextPatch.dll', args)
+        const runtime = await this.dotnetRuntime
+        const exitCode = await runtime?.runMain('VNTextPatch.dll', args)
         if (exitCode === 0) {
             console.log('VNTextPatch completed successfully!');
         } else {
@@ -133,6 +143,7 @@ export class VNTextPatch extends MyWASM {
                 return [ (line as ILineJSON).message, '', '', '', '' ]
             })
         }
+        console.log(outputFiles)
         return outputFiles as Record<string, string[][]>
     }
 
