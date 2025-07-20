@@ -25,6 +25,12 @@ export class MyWASM {
 
     private fileSystem() { return this.dotnetRuntime?.Module.FS }
 
+    protected async listDir(dir: string) { 
+        return await this.fileSystem()?.readdir(dir)?.filter((folderItem: string) => ( 
+            folderItem !== '.' && folderItem != '..' && !this.fileSystem().isDir(dir + '/' + folderItem)
+        ))
+    }
+
     protected async getFolderFiles(folderName: string, outputFiles: Record<string, string> = {}) { 
         const fileNames = await this.fileSystem().readdir(folderName)
         fileNames.forEach(async (folderItem: string) => { 
@@ -110,5 +116,9 @@ export class VNTextPatch extends MyWASM {
     getSrcFiles() { 
         const el = document.getElementById('fileInput') as HTMLInputElement
         return el?.files
+    }
+
+    async listOutputDir(): Promise<string[]> { 
+        return await this.listDir('output')
     }
 }
