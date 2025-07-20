@@ -21,7 +21,6 @@ export class Repo {
     open() { 
         if (!this.projectName) { throw new Error('IndexedDB Repo Error: missing project name.') }
         this.request = indexedDB.open(this.projectName, 1)
-        this.request.onerror = () => { console.error(this.request!.error) }
         this._isOpen = true
     }
 
@@ -47,8 +46,14 @@ export class Repo {
 
     get isOpen() { return this._isOpen }
 
-    private db(): IDBDatabase | undefined { 
-        return this.request?.result
+    private async getDb() { 
+        const { promise, resolve, reject } = Promise.withResolvers()
+        if (this.request) { 
+            this.request!.onsuccess = () => { resolve(this.request!.result) }
+            this.request!.onerror = () => { reject(this.request!.error) }
+        }
+        else { reject("IndexedDB Repo Error: Request is not defined.") }
+        return promise as Promise<IDBDatabase>
     }
 
     private insertSheets(store: IDBObjectStore, outputFiles: Record<string, string[][]>) { 
@@ -61,20 +66,20 @@ export class Repo {
     }
 
     private async insertSrcFiles(srcFiles: FileList) { 
-        if (!this.db()) { return }
+        const db = await this.getDb()
         const files = await Promise.all(Array.from(srcFiles).map(async file => ({ 
             filename: file.name,
             content: new Uint8Array(await file.arrayBuffer())
         } as StoreItem)))
-        const transaction = this.db()?.transaction("source_files", "readwrite")
+        const transaction = db.transaction("source_files", "readwrite")
         const store = transaction?.objectStore("source_files")
         for (const file of files) { store?.add(file) }
     }
 
     async getSourceFiles() { 
-        if (!this.db()) { return Promise.resolve() }
+        const db = await this.getDb()
         const { promise, resolve, reject } = Promise.withResolvers()
-        const transaction = this.db()!.transaction("source_files", "readonly")
+        const transaction = db.transaction("source_files", "readonly")
         const store = transaction.objectStore("source_files")
         const response = store.getAll()
 
@@ -83,9 +88,9 @@ export class Repo {
         return promise as Promise<StoreItem[]>
     }
 
-    updateSheet(fileName: string, sheet: string[][]) { 
-        if (!this.db()) { return }
-        const transaction = this.db()?.transaction("sheets", "readwrite")
+    async updateSheet(fileName: string, sheet: string[][]) { 
+        const db = await this.getDb()
+        const transaction = db?.transaction("sheets", "readwrite")
         const store = transaction?.objectStore("sheets")
         store?.put({ 
             filename: fileName,
@@ -94,9 +99,9 @@ export class Repo {
     }
 
     async getSheet(fileName: string) { 
-        if (!this.db()) { return Promise.resolve() }
+        const db = await this.getDb()
         const { promise, resolve, reject } = Promise.withResolvers()
-        const transaction = this.db()!.transaction("sheets", "readwrite")
+        const transaction = db.transaction("sheets", "readwrite")
         const store = transaction.objectStore("sheets")
         const response = store.get(fileName)
 
@@ -106,9 +111,9 @@ export class Repo {
     }
 
     async getSheets() { 
-        if (!this.db()) { return Promise.resolve() }
+        const db = await this.getDb()
         const { promise, resolve, reject } = Promise.withResolvers()
-        const transaction = this.db()!.transaction("sheets", "readwrite")
+        const transaction = db.transaction("sheets", "readwrite")
         const store = transaction.objectStore("sheets")
         const response = store.getAll()
 
