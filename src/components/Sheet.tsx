@@ -1,4 +1,4 @@
-import { createEffect } from 'solid-js';
+import { createEffect, type Accessor } from 'solid-js';
 import Handsontable from 'handsontable';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
@@ -6,14 +6,15 @@ import 'handsontable/styles/ht-theme-main.css';
 
 
 interface SheetProps { 
-    sheet: string[][]
+    sheet: Accessor<string[][] | undefined>
 }
 
-export default function Sheet({ sheet }: SheetProps) { //console.log(sheet)
+export default function Sheet({ sheet }: SheetProps) { 
     let section: HTMLElement | undefined
 
-    createEffect(() => { 
-        if (sheet instanceof Array && sheet[0] instanceof Array && section) { 
+    createEffect(() => { //console.log(sheet())
+        if (sheet() instanceof Array && sheet()?.[0] instanceof Array && section) { 
+            section.innerHTML = ''
             new Handsontable(section, {
                 themeName: 'ht-theme-main-dark',
                 //startRows: 8,
@@ -28,13 +29,13 @@ export default function Sheet({ sheet }: SheetProps) { //console.log(sheet)
                 },
                 autoWrapRow: true,
                 autoWrapCol: true,
-                data: sheet
+                data: sheet()
             });
         }
     })
 
 
     return ( 
-        <section ref={section}></section>
+        <section class='w-full' ref={section}></section>
     )
 }

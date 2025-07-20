@@ -32,7 +32,7 @@ export default function Explorer({ projectName }: ExplorerProps) {
 
     return ( 
         <main class="p-14 flex gap-16">
-            <section class="bg-zinc-800 flex flex-col rounded-xl border-white border-x-2 border-y-[20px]">
+            <section class="h-fit bg-zinc-800 flex flex-col rounded-xl border-white border-x-2 border-y-[20px]">
                 <For each={project_files()}>
                     { fileName => 
                         <button class="px-3 cursor-pointer text-left border-white border-[1px]"
@@ -43,7 +43,7 @@ export default function Explorer({ projectName }: ExplorerProps) {
                 </For>
             </section>
             <Show when={sheet()}>
-                <Sheet sheet={sheet() as string[][]} />
+                <Sheet sheet={sheet} />
             </Show>
         </main>
     )
