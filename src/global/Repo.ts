@@ -18,12 +18,6 @@ export class Repo {
         if (projectName) { this.projectName = projectName }
     }
 
-    open() { 
-        if (!this.projectName) { throw new Error('IndexedDB Repo Error: missing project name.') }
-        this.request = indexedDB.open(this.projectName, 1)
-        this._isOpen = true
-    }
-
     create(init?: IRepoInit) { 
         this.projectName = init?.projectName || this.projectName
         if (!this.projectName) { throw new Error('IndexedDB Repo Error: missing project name.') }
@@ -44,15 +38,22 @@ export class Repo {
         this._isOpen = true
     }
 
+    open() { 
+        if (!this.projectName) { throw new Error('IndexedDB Repo Error: missing project name.') }
+        this.request = indexedDB.open(this.projectName, 1)
+        this._isOpen = true
+    }
+
     get isOpen() { return this._isOpen }
 
     private async getDb() { 
         const { promise, resolve, reject } = Promise.withResolvers()
-        if (this.request) { 
-            this.request!.onsuccess = () => { resolve(this.request!.result) }
-            this.request!.onerror = () => { reject(this.request!.error) }
+        if (this.request && this.request.readyState === "pending") { 
+            this.request.onsuccess = () => { resolve(this.request!.result) }
+            this.request.onerror = () => { reject(this.request!.error) }
         }
-        else { reject("IndexedDB Repo Error: Request is not defined.") }
+        else if (this.request && this.request.readyState === "done") { resolve(this.request.result) }
+        else if (!this.request) { reject("IndexedDB Repo Error: Request is not defined.") }
         return promise as Promise<IDBDatabase>
     }
 
