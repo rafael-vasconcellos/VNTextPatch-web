@@ -1,7 +1,7 @@
 import { createSignal, Show } from 'solid-js'
 import './App.css'
-import UploadFiles from '../components/UploadFiles'
-import ProjectName from '../components/UploadFiles/ProjectName'
+import UploadFiles from '../../components/UploadFiles'
+import ProjectName from '../../components/UploadFiles/ProjectName'
 
 
 export default function App() { 
