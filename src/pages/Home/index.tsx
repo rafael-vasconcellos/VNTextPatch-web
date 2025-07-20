@@ -10,32 +10,34 @@ import Explorer from '../Explorer'
 export default function App() { 
     const repo = new Repo()
     const [ project_name, setProjectName ] = createSignal('')
-    const [ srcFiles, setSrcFiles ] = createSignal<FileList>()
+    const [ src_files, setSrcFiles ] = createSignal<FileList>()
+    const [ isRepoOpen, setRepoStatus ] = createSignal(false)
     let fileInput: HTMLInputElement | undefined
 
     createEffect(async() => { 
-        if (srcFiles()?.length && project_name()) { 
+        if (src_files()?.length && project_name()) { 
             const vn = new VNTextPatch()
             repo.create({ 
                 projectName: project_name(),
-                outputFiles: await vn.extractLocalAsSheets(srcFiles()),
-                srcFiles: srcFiles()
+                outputFiles: await vn.extractLocalAsSheets(src_files()),
+                srcFiles: src_files()
             })
+            setRepoStatus(repo.isOpen)
         }
     })
 
 
     return (
       <section class='w-screen h-screen flex justify-center items-center'>
-        <Show when={!srcFiles()?.length}>
+        <Show when={!src_files()?.length}>
             <UploadFiles ref={fileInput} onChange={() => { 
                 if (fileInput?.files?.length) { setSrcFiles(fileInput.files) }
             }} />
         </Show>
-        <Show when={srcFiles()?.length && !project_name()}>
+        <Show when={src_files()?.length && !project_name()}>
             <ProjectName onSubmit={(name: string) => setProjectName(name)} />
         </Show>
-        <Show when={repo.isOpen}>
+        <Show when={isRepoOpen()}>
             <Explorer projectName={project_name()} />
         </Show>
       </section>
