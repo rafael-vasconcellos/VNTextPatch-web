@@ -25,6 +25,18 @@ export class MyWASM {
 
     private fileSystem() { return this.dotnetRuntime?.Module.FS }
 
+    protected async getFolderFiles(folderName: string, outputFiles: Record<string, string> = {}) { 
+        const fileNames = await this.fileSystem().readdir(folderName)
+        fileNames.forEach(async (folderItem: string) => { 
+            if (folderItem !== '.' && folderItem != '..' && !this.fileSystem().isDir(folderName + '/' + folderItem)) { 
+                const file: Uint8Array = this.fileSystem().readFile(folderName + '/' + folderItem)
+                const fileString = this.decodeUint8Array(file)
+                outputFiles[folderItem] = fileString
+            }
+        })
+        return outputFiles
+    }
+
     private decodeUint8Array(uint8Array: Uint8Array) { 
         const binaryString = new TextDecoder('latin1').decode(uint8Array);
         const detected = jschardet.detect(binaryString);
@@ -56,15 +68,7 @@ export class MyWASM {
     }
 
     async getOutputFiles(outputFiles: Record<string, string> = {}) { 
-        const fileNames = await this.fileSystem().readdir('output')
-        fileNames.forEach(async (folderItem: string) => { 
-            if (folderItem !== '.' && folderItem != '..' && !this.fileSystem().isDir('output/' + folderItem)) { 
-                const file: Uint8Array = this.fileSystem().readFile('output/' + folderItem)
-                const fileString = this.decodeUint8Array(file)
-                outputFiles[folderItem] = fileString
-            }
-        })
-        return outputFiles
+        return await this.getFolderFiles('output', outputFiles)
     }
 }
 
@@ -101,5 +105,10 @@ export class VNTextPatch extends MyWASM {
         
         //console.log(outputFiles)
         return outputFiles
+    }
+
+    getSrcFiles() { 
+        const el = document.getElementById('fileInput') as HTMLInputElement
+        return el?.files
     }
 }
