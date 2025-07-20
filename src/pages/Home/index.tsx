@@ -1,7 +1,7 @@
 import { createEffect, createSignal, Show } from 'solid-js'
 import { Repo } from '../../global/Repo'
 import { VNTextPatch } from '../../global/VNTextPatch'
-import './App.css'
+import './style.css'
 import UploadFiles from '../../components/UploadFiles'
 import ProjectName from '../../components/UploadFiles/ProjectName'
 import Explorer from '../Explorer'
@@ -26,7 +26,7 @@ export default function App() {
 
 
     return (
-      <>
+      <section class='w-screen h-screen flex justify-center items-center'>
         <Show when={!srcFiles()?.length}>
             <UploadFiles ref={fileInput} onChange={() => { 
                 if (fileInput?.files?.length) { setSrcFiles(fileInput.files) }
@@ -38,7 +38,7 @@ export default function App() {
         <Show when={repo.isOpen}>
             <Explorer projectName={project_name()} />
         </Show>
-      </>
+      </section>
     )
 }
 
