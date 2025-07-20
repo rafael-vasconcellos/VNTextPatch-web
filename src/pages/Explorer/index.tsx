@@ -32,10 +32,14 @@ export default function Explorer({ projectName }: ExplorerProps) {
 
     return ( 
         <main class="p-14 flex gap-16">
-            <section>
+            <section class="bg-zinc-800 flex flex-col rounded-xl border-white border-x-2 border-y-[20px]">
                 <For each={project_files()}>
                     { fileName => 
-                        <button onClick={() => setCurrentFile(fileName)}>{fileName}</button> }
+                        <button class="px-3 cursor-pointer text-left border-white border-[1px]"
+                         onClick={() => setCurrentFile(fileName)}>
+                            {fileName}
+                        </button> 
+                    }
                 </For>
             </section>
             <Show when={sheet()}>
