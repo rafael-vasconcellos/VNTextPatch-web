@@ -1,6 +1,6 @@
 interface IRepoInit { 
     projectName: string
-    srcFiles: FileList
+    srcFiles: FileList | null
     outputFiles: Record<string, string[][]>
 }
 
@@ -9,13 +9,14 @@ export class Repo {
     public projectName: string
     private request: IDBOpenDBRequest
     constructor(init: IRepoInit) { 
+        if (!init.srcFiles) { throw new Error("Repo error: srcFiles can't be null.") }
         this.projectName = init.projectName
         this.request = indexedDB.open(this.projectName, 1)
 
         this.request.onupgradeneeded = (event) => { 
             const db = (event.target as IDBOpenDBRequest).result
             this.create(db, init.outputFiles)
-            this.request.onsuccess = () => this.insertSrcFiles(init.srcFiles)
+            this.request.onsuccess = () => this.insertSrcFiles(init.srcFiles as FileList)
         }
         this.request.onerror = () => { console.error(this.request.error) }
     }
