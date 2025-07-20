@@ -1,12 +1,12 @@
 import { createEffect, createSignal, For, Show } from "solid-js"
-import Sheet from "../../components/Sheet"
 import { Repo } from "../../global/Repo"
+import Sheet from "../../components/Sheet"
+
 
 interface ExplorerProps { 
     projectName: string
     //srcFiles: FileList
 }
-
 
 export default function Explorer({ projectName }: ExplorerProps) { 
     const repo = new Repo(projectName)

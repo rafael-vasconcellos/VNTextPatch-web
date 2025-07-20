@@ -1,6 +1,7 @@
 interface IRepoInit { 
     srcFiles?: FileList | null
     outputFiles?: Record<string, string[][]>
+    projectName?: string
 }
 
 interface StoreItem { 
@@ -11,17 +12,23 @@ interface StoreItem {
 
 export class Repo {  
     private request?: IDBOpenDBRequest
-    public projectName: string
-    constructor(projectName: string) { 
-        this.projectName = projectName
+    public projectName?: string
+    private _isOpen: boolean = false
+    constructor(projectName?: string) { 
+        if (projectName) { this.projectName = projectName }
     }
 
     open() { 
+        if (!this.projectName) { throw new Error('IndexedDB Repo Error: missing project name.') }
         this.request = indexedDB.open(this.projectName, 1)
         this.request.onerror = () => { console.error(this.request!.error) }
+        this._isOpen = true
     }
 
     create(init?: IRepoInit) { 
+        this.projectName = init?.projectName || this.projectName
+        if (!this.projectName) { throw new Error('IndexedDB Repo Error: missing project name.') }
+
         this.request = indexedDB.open(this.projectName, 1)
         this.request.onupgradeneeded = (event) => { 
             const db = (event.target as IDBOpenDBRequest).result
@@ -35,7 +42,10 @@ export class Repo {
             }
         }
         this.request.onerror = () => { console.error(this.request!.error) }
+        this._isOpen = true
     }
+
+    get isOpen() { return this._isOpen }
 
     private db(): IDBDatabase | undefined { 
         return this.request?.result
