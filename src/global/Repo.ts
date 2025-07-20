@@ -27,14 +27,11 @@ export class Repo {
     private create(db: IDBDatabase, outputFiles: Record<string, string[][]>) { 
         db.createObjectStore("source_files", { keyPath: "name" })
 
+        const store = db.createObjectStore("sheets", { keyPath: "filename" })
         for (const fileName in outputFiles) { 
-            const store = db.createObjectStore(fileName, { keyPath: "original_text" })
             store.add({ 
-                original_text: outputFiles[fileName][0],
-                t1: outputFiles[fileName][1],
-                t2: outputFiles[fileName][2],
-                t3: outputFiles[fileName][3],
-                t4: outputFiles[fileName][4],
+                filename: fileName,
+                content: outputFiles[fileName]
             })
         }
     }
@@ -49,18 +46,6 @@ export class Repo {
         for (const file of files) { store.add(file) }
     }
 
-    updateSheet(fileName: string, row: string[]) { 
-        const transaction = this.db().transaction(fileName, "readwrite")
-        const store = transaction.objectStore(fileName)
-        store?.put({ 
-            original_text: row[0],
-            t1: row[1],
-            t2: row[2],
-            t3: row[3],
-            t4: row[4],
-        })
-    }
-
     getSourceFiles() { 
         const { promise, resolve, reject } = Promise.withResolvers()
         const transaction = this.db().transaction("source_files", "readonly")
@@ -72,11 +57,21 @@ export class Repo {
         return promise
     }
 
+    updateSheet(fileName: string, sheet: string[][]) { 
+        const transaction = this.db().transaction("sheets", "readwrite")
+        const store = transaction.objectStore("sheets")
+        store?.put({ 
+            filename: fileName,
+            content: sheet
+        })
+    }
+
     getSheet(fileName: string) { 
         const { promise, resolve, reject } = Promise.withResolvers()
-        const transaction = this.db().transaction(fileName, "readwrite")
-        const store = transaction.objectStore(fileName)
-        const response = store.getAll()
+        const transaction = this.db().transaction("sheets", "readwrite")
+        const store = transaction.objectStore("sheets")
+        const index = store.index("filename")
+        const response = index.get(fileName)
 
         response.onsuccess = () => resolve(response.result)
         response.onerror = () => reject(response.error)
