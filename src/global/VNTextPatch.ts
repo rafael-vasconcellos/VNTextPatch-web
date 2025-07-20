@@ -1,6 +1,11 @@
 import jschardet from 'jschardet';
 
 
+interface ILineJSON { 
+    name: string
+    message: string
+}
+
 export function downloadFile(fileContent: string, fileName: string = 'file', fileType: string = 'application/json') { 
     const blob = new Blob([fileContent], { type: fileType })
     const url = URL.createObjectURL(blob)
@@ -25,6 +30,21 @@ export class MyWASM {
 
     private fileSystem() { return this.dotnetRuntime?.Module.FS }
 
+    private decodeUint8Array(uint8Array: Uint8Array) { 
+        const binaryString = new TextDecoder('latin1').decode(uint8Array);
+        const detected = jschardet.detect(binaryString);
+        //console.log('Encoding detectado:', detected);
+
+        if (detected.encoding) {
+            const decoder = new TextDecoder(detected.encoding);
+            return decoder.decode(uint8Array);
+        }
+        
+        // Fallback para UTF-8
+        const decoder = new TextDecoder('utf-8');
+        return decoder.decode(uint8Array);
+    }
+
     protected async listDir(dir: string) { 
         return await this.fileSystem()?.readdir(dir)?.filter((folderItem: string) => ( 
             folderItem !== '.' && folderItem != '..' && !this.fileSystem().isDir(dir + '/' + folderItem)
@@ -43,19 +63,16 @@ export class MyWASM {
         return outputFiles
     }
 
-    private decodeUint8Array(uint8Array: Uint8Array) { 
-        const binaryString = new TextDecoder('latin1').decode(uint8Array);
-        const detected = jschardet.detect(binaryString);
-        //console.log('Encoding detectado:', detected);
-
-        if (detected.encoding) {
-            const decoder = new TextDecoder(detected.encoding);
-            return decoder.decode(uint8Array);
+    protected cleanDir(path: string) { 
+        const files = this.fileSystem().readdir(path);
+        for (const f of files) {
+            if (f !== '.' && f !== '..') {
+                const fullPath = path + '/' + f;
+                if (this.fileSystem().isFile(this.fileSystem().stat(fullPath).mode)) {
+                    this.fileSystem().unlink(fullPath);
+                }
+            }
         }
-        
-        // Fallback para UTF-8
-        const decoder = new TextDecoder('utf-8');
-        return decoder.decode(uint8Array);
     }
 
     async addFiles(elementId: string) { 
@@ -88,19 +105,13 @@ export class VNTextPatch extends MyWASM {
         }
     }
 
-    async extractLocal() { 
+    async extractLocal<T= ILineJSON[]>(): Promise<Record<string, T>> { 
         const outputFiles = {} as Record<string, any>
         const proxy = new Proxy(outputFiles, { 
             get(target, prop: string, _) { return target[prop] },
             set(target, oProp: string, value, _) { 
                 const prop = oProp.replace('.json', '')
-                try { 
-                    const parsed: any[] = JSON.parse(value) 
-                    target[prop] = parsed.map && parsed.map(item => { 
-                        const row = [ item.message, '', '', '', '' ]
-                        return row
-                    })
-                }
+                try { target[prop] = JSON.parse(value) }
                 catch (e) { target[prop] = value }
                 return true
             }
@@ -110,15 +121,23 @@ export class VNTextPatch extends MyWASM {
             .then(() => this.getOutputFiles(proxy))
         
         //console.log(outputFiles)
+        this.cleanDir('input')
+        this.cleanDir('output')
         return outputFiles
+    }
+
+    async extractLocalAsSheets() { 
+        const outputFiles = await this.extractLocal<ILineJSON[] | string[][]>()
+        for (const fileName in outputFiles) { 
+            outputFiles[fileName] = outputFiles[fileName].map((line) => { 
+                return [ (line as ILineJSON).message, '', '', '', '' ]
+            })
+        }
+        return outputFiles as Record<string, string[][]>
     }
 
     getSrcFiles() { 
         const el = document.getElementById('fileInput') as HTMLInputElement
         return el?.files
-    }
-
-    async listOutputDir(): Promise<string[]> { 
-        return await this.listDir('output')
     }
 }

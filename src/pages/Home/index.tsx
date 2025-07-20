@@ -18,7 +18,7 @@ export default function App() {
             const vn = new VNTextPatch()
             repo.create({ 
                 projectName: project_name(),
-                outputFiles: await vn.extractLocal(),
+                outputFiles: await vn.extractLocalAsSheets(),
                 srcFiles: srcFiles()
             })
         }
