@@ -32,12 +32,12 @@ export class Repo {
         this.request = indexedDB.open(this.projectName, 1)
         this.request.onupgradeneeded = (event) => { 
             const db = (event.target as IDBOpenDBRequest).result
-            db.createObjectStore("source_files", { keyPath: "name" })
-            db.createObjectStore("sheets", { keyPath: "filename" })
-            if (init?.outputFiles) { 
-                this.insertSheets(init.outputFiles)
+            const sheets_store = db.createObjectStore("sheets", { keyPath: "filename" })
+            db.createObjectStore("source_files", { keyPath: "filename" })
+            if ( Object.keys(init?.outputFiles ?? {}).length ) { 
+                this.insertSheets(sheets_store, init!.outputFiles!)
             }
-            if (init?.srcFiles) { 
+            if (init?.srcFiles?.length) { 
                 this.request!.onsuccess = () => this.insertSrcFiles(init.srcFiles as FileList)
             }
         }
@@ -51,10 +51,7 @@ export class Repo {
         return this.request?.result
     }
 
-    private insertSheets(outputFiles: Record<string, string[][]>) { 
-        if (!this.db()) { return }
-        const transaction = this.db()?.transaction("sheets", "readwrite")
-        const store = transaction?.objectStore("sheets")
+    private insertSheets(store: IDBObjectStore, outputFiles: Record<string, string[][]>) { 
         for (const fileName in outputFiles) { 
             store?.add({ 
                 filename: fileName,
