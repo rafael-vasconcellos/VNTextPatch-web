@@ -1,0 +1,7 @@
+button > svg { 
+    display: none;
+}
+
+button:hover > svg { 
+    display: inline-block;
+}
