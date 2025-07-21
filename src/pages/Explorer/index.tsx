@@ -43,7 +43,9 @@ export default function Explorer({ projectName }: ExplorerProps) {
                 </For>
             </section>
             <Show when={sheet()}>
-                <Sheet sheet={sheet} />
+                <Sheet sheet={sheet} onChange={sheet => { 
+                    repo.updateSheet(current_file(), sheet)
+                }} />
             </Show>
         </main>
     )
