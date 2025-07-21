@@ -4,7 +4,7 @@ interface IRepoInit {
     projectName?: string
 }
 
-interface StoreItem { 
+export interface StoreItem { 
     filename: string
     content: any
 }
@@ -77,7 +77,7 @@ export class Repo {
         for (const file of files) { store?.add(file) }
     }
 
-    async getSourceFiles() { 
+    async getSrcFiles() { 
         const db = await this.getDb()
         const { promise, resolve, reject } = Promise.withResolvers()
         const transaction = db.transaction("source_files", "readonly")
@@ -89,14 +89,14 @@ export class Repo {
         return promise as Promise<StoreItem[]>
     }
 
-    async updateSheet(fileName: string, sheet: string[][]) { 
-        const db = await this.getDb()
-        const transaction = db?.transaction("sheets", "readwrite")
-        const store = transaction?.objectStore("sheets")
-        store?.put({ 
-            filename: fileName,
-            content: sheet
-        } as StoreItem)
+    async getSrcFileList() { 
+        const dataTransfer = new DataTransfer()
+        const storeArr = await this.getSrcFiles()
+        storeArr.forEach(storeItem => { 
+            const file = new File([storeItem.content], storeItem.filename, { type: "text/plain" })
+            dataTransfer.items.add(file)
+        })
+        return dataTransfer.files
     }
 
     async getSheet(fileName: string) { 
@@ -121,5 +121,15 @@ export class Repo {
         response.onsuccess = () => resolve(response.result)
         response.onerror = () => reject(response.error)
         return promise as Promise<StoreItem[]>
+    }
+
+    async updateSheet(fileName: string, sheet: string[][]) { 
+        const db = await this.getDb()
+        const transaction = db?.transaction("sheets", "readwrite")
+        const store = transaction?.objectStore("sheets")
+        store?.put({ 
+            filename: fileName,
+            content: sheet
+        } as StoreItem)
     }
 }
