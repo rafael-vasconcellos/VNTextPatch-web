@@ -40,7 +40,11 @@ export default function Sheet({ sheet, onChange }: SheetProps) {
                 data: sheet()
             });
             
-            hot.addHook('afterChange', () => { 
+            hot.addHook('afterChange', (changes) => { 
+                changes?.forEach(change => { 
+                    const [ row, col, , value ] = change
+                    if (col===0 && !value) { hot.alter('remove_row', row) }
+                })
                 onChange && onChange(hot.getData())
             })
         }

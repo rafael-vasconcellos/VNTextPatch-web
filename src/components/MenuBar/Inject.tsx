@@ -15,16 +15,20 @@ export default function Inject() {
 
             repo().getSheets()
                 .then(storeItems => storeItems.map(storeItem => Object.values(storeItem))) 
-                .then((entries) => Object.fromEntries(entries))
+                .then((entries) => Object.fromEntries(entries) as Record<string, string[][]>)
         ])
 
         //console.log(sheets); console.log(jsonFiles)
-        for (let fileName in jsonFiles) { 
-            for (let i=0; i<jsonFiles[fileName].length; i++) { 
-                const messages = (sheets[fileName] as string[][])[i].filter(m => m)
-                jsonFiles[fileName][i].message = messages.at(-1) ?? messages[0]
+        for (let fileName in sheets) { 
+            if (sheets[fileName].length !== jsonFiles[fileName + '.json'].length) { 
+                throw new Error(fileName + ' ' + "sheet is incompatible with original game files.")
+            }
+            for (let i=0; i<sheets[fileName].length; i++) { 
+                const messages = sheets[fileName][i].filter(m => m)
+                jsonFiles[fileName + '.json'][i].message = messages.at(-1) ?? messages[0]
             }
         }
+
         console.log(jsonFiles)
     }
 
