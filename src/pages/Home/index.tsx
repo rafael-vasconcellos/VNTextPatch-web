@@ -1,13 +1,14 @@
 import { createEffect, createSignal, Show } from 'solid-js'
 import { Repo } from '../../global/Repo'
 import { VNTextPatch } from '../../global/VNTextPatch'
+import { isProjectOpen, setProjectStatus } from '../../global/utils'
 import './style.css'
+import RepoContextProvider from '../Explorer/context'
+import Explorer from '../Explorer'
 import UploadFiles from '../../components/UploadFiles'
 import ProjectName from '../../components/UploadFiles/ProjectName'
-import Explorer from '../Explorer'
 import LocalProjects from '../../components/LocalProjects'
 import SkeletonLoading from '../../components/SkeletonLoading'
-import RepoContextProvider from '../Explorer/context'
 
 
 export default function App() { 
@@ -15,7 +16,6 @@ export default function App() {
     const repo = new Repo()
     const [ project_name, setProjectName ] = createSignal('')
     const [ src_files, setSrcFiles ] = createSignal<FileList>()
-    const [ isProjectOpen, setProjectStatus ] = createSignal(false)
     let fileInput: HTMLInputElement | undefined
 
     createEffect(async() => { 
