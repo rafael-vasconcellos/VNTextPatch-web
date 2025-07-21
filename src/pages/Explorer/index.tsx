@@ -1,6 +1,7 @@
 import { createEffect, createSignal, For, Show } from "solid-js"
 import Sheet from "../../components/Sheet"
 import { useRepoContext } from "./context"
+import MenuBar from "../../components/MenuBar"
 
 
 interface ExplorerProps { 
@@ -30,22 +31,25 @@ export default function Explorer({  }: ExplorerProps) {
 
 
     return ( 
-        <main class="p-14 flex gap-16">
-            <section class="h-fit bg-zinc-800 flex flex-col rounded-xl border-white border-x-2 border-y-[20px]">
-                <For each={project_files()}>
-                    { fileName => 
-                        <button class="px-3 cursor-pointer text-left border-white border-[1px]"
-                         onClick={() => setCurrentFile(fileName)}>
-                            {fileName}
-                        </button> 
-                    }
-                </For>
-            </section>
-            <Show when={sheet()}>
-                <Sheet sheet={sheet} onChange={sheet => { 
-                    repo().updateSheet(current_file(), sheet)
-                }} />
-            </Show>
-        </main>
+        <>
+            <MenuBar />
+            <main class="p-14 flex gap-8">
+                <section class="h-fit bg-zinc-800 flex flex-col rounded-xl border-white border-x-2 border-y-[20px]">
+                    <For each={project_files()}>
+                        { fileName => 
+                            <button class="px-3 cursor-pointer bg-handsontable text-left border-white border-[1px]"
+                            onClick={() => setCurrentFile(fileName)}>
+                                {fileName}
+                            </button> 
+                        }
+                    </For>
+                </section>
+                <Show when={sheet()}>
+                    <Sheet sheet={sheet} onChange={sheet => { 
+                        repo().updateSheet(current_file(), sheet)
+                    }} />
+                </Show>
+            </main>
+        </>
     )
 }

@@ -1,7 +1,7 @@
-button > svg { 
+button.relative > svg { 
     display: none;
 }
 
-button:hover > svg { 
+button.relative:hover > svg { 
     display: inline-block;
 }

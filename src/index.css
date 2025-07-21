@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 
+@theme { 
+    --color-handsontable: #050506
+}
+
 body {
-    background-color: oklch(14.5% 0 0);
+    background-color: oklch(14.7% 0.004 49.25);
     /* background-color: #161B22; */
     color: #fff;
 }
