@@ -9,6 +9,7 @@ import LocalProjects from '../../components/LocalProjects'
 
 
 export default function App() { 
+    const vn = new VNTextPatch()
     const repo = new Repo()
     const [ project_name, setProjectName ] = createSignal('')
     const [ src_files, setSrcFiles ] = createSignal<FileList>()
@@ -17,7 +18,6 @@ export default function App() {
 
     createEffect(async() => { 
         if (src_files()?.length && project_name()) { 
-            const vn = new VNTextPatch()
             repo.create({ 
                 projectName: project_name(),
                 outputFiles: await vn.extractLocalAsSheets(src_files()),

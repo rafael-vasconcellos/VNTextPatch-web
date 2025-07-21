@@ -28,23 +28,23 @@ export class MyWASM {
     }
 
     private async getFileSystem(): Promise<typeof FS> { 
-        await new Promise(res => setTimeout(res, 2000))
+        //await new Promise(res => setTimeout(res, 2000))
         const runtime = await this.dotnetRuntime
         if (!runtime) { throw new Error('Failed to use .NET virtual filesystem: .NET not initialized.') }
         return runtime?.Module.FS 
     }
 
-    private decodeUint8Array(uint8Array: Uint8Array) { 
+    protected decodeUint8Array(uint8Array: Uint8Array, fileName?: string) { 
         const binaryString = new TextDecoder('latin1').decode(uint8Array);
         const detected = jschardet.detect(binaryString);
-        //console.log('Encoding detectado:', detected);
 
-        if (detected.encoding) {
+        if (detected.encoding) { 
+            console.log(`Detected encoding for ${fileName}: ` + detected.encoding)
             const decoder = new TextDecoder(detected.encoding);
             return decoder.decode(uint8Array);
         }
         
-        // Fallback para UTF-8
+        console.log(`Uint8Array decoding: using utf-8 fallback for ${fileName} file.`)
         const decoder = new TextDecoder('utf-8');
         return decoder.decode(uint8Array);
     }
@@ -69,7 +69,7 @@ export class MyWASM {
             const path_mode = fileSystem.stat(folderName + '/' + folderItem).mode
             if (folderItem !== '.' && folderItem != '..' && !fileSystem.isDir(path_mode)) { 
                 const file: Uint8Array = fileSystem.readFile(folderName + '/' + folderItem)
-                const fileString = this.decodeUint8Array(file)
+                const fileString = new TextDecoder('utf-8').decode(file)
                 outputFiles[folderItem] = fileString
             }
         })
