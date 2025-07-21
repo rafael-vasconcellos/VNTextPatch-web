@@ -12,8 +12,8 @@ const [ _, setContextValue ] = context
 export const RepoContext = createContext<[ Accessor<Repo>, Setter<Repo> ]>(context)
 
 export function useRepoContext() {
-    const ctx = useContext(RepoContext);
-    return ctx ?? {} as Repo;
+    const ctx = useContext(RepoContext)
+    return ctx
 }
 
 export default function RepoContextProvider({ projectName, children }: RepoContextProviderProps) { 
