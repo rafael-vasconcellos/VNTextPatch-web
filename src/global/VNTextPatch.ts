@@ -6,6 +6,12 @@ interface ILineJSON {
     message: string
 }
 
+interface GetFolderOptions { 
+    folderName: string
+    outputFiles?: Record<string, string>
+    textDecoder?: TextDecoder
+}
+
 export function downloadFile(fileContent: string, fileName: string = 'file', fileType: string = 'application/json') { 
     const blob = new Blob([fileContent], { type: fileType })
     const url = URL.createObjectURL(blob)
@@ -34,46 +40,61 @@ export class MyWASM {
         return runtime?.Module.FS 
     }
 
-    protected decodeUint8Array(uint8Array: Uint8Array, fileName?: string) { 
+    public static getTextDecoder(uint8Array: Uint8Array, fileName?: string) { 
         const binaryString = new TextDecoder('latin1').decode(uint8Array);
         const detected = jschardet.detect(binaryString);
 
         if (detected.encoding) { 
             console.log(`Detected encoding for ${fileName}: ` + detected.encoding)
-            const decoder = new TextDecoder(detected.encoding);
-            return decoder.decode(uint8Array);
+            return new TextDecoder(detected.encoding)
         }
         
         console.log(`Uint8Array decoding: using utf-8 fallback for ${fileName} file.`)
-        const decoder = new TextDecoder('utf-8');
-        return decoder.decode(uint8Array);
+        return new TextDecoder('utf-8')
     }
 
-    protected async addFilesFromList(files: FileList) { 
+    public static async getTextDecoderFromFiles(files: FileList) { 
+        const fileContent = new Uint8Array(await files[0].arrayBuffer())
+        return MyWASM.getTextDecoder(fileContent, files[0].name)
+    }
+
+    protected async addFilesFromList(files: FileList, inputFolder: string = "input") { 
         const fileSystem = await this.getFileSystem()
-        if (!fileSystem.analyzePath("input")?.exists) { fileSystem.mkdir("input") }
+        if (!fileSystem.analyzePath(inputFolder)?.exists) { fileSystem.mkdir(inputFolder) }
         if (!fileSystem.analyzePath("output")?.exists) { fileSystem.mkdir("output") }
         if (files.length > 0) { 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const arrayBuffer = await file.arrayBuffer();
-                fileSystem.writeFile("input/" + file.name, new Uint8Array(arrayBuffer));
+                fileSystem.writeFile(inputFolder + "/" + file.name, new Uint8Array(arrayBuffer));
             }
         }
     }
 
-    protected async getFolderFiles(folderName: string, outputFiles: Record<string, string> = {}) { 
+    async getFolderFiles({ folderName, outputFiles, textDecoder }: GetFolderOptions) { 
+        outputFiles ||= {}
+        textDecoder ||= new TextDecoder('utf-8')
         const fileSystem = await this.getFileSystem()
         const fileNames = await fileSystem.readdir(folderName)
         fileNames.forEach(async (folderItem: string) => { 
             const path_mode = fileSystem.stat(folderName + '/' + folderItem).mode
             if (folderItem !== '.' && folderItem != '..' && !fileSystem.isDir(path_mode)) { 
                 const file: Uint8Array = fileSystem.readFile(folderName + '/' + folderItem)
-                const fileString = new TextDecoder('utf-8').decode(file)
+                const fileString = textDecoder.decode(file)
                 outputFiles[folderItem] = fileString
             }
         })
         return outputFiles
+    }
+
+    async addFilesFromObj(files: Record<string, any>, inputFolder: string = "input") { 
+        const fileSystem = await this.getFileSystem()
+        if (!fileSystem.analyzePath(inputFolder)?.exists) { fileSystem.mkdir(inputFolder) }
+        if (!fileSystem.analyzePath("output")?.exists) { fileSystem.mkdir("output") }
+        for (const fileName in files) {
+            const file = files[fileName]
+            fileSystem.writeFile(inputFolder + "/" + fileName, MyWASM.formatFile(file))
+        }
     }
 
     async listDir(dir: string) { 
@@ -97,21 +118,32 @@ export class MyWASM {
         }
     }
 
-    async getOutputFiles(outputFiles: Record<string, string> = {}) { 
-        return await this.getFolderFiles('output', outputFiles)
-    }
-
     async addFilesFromInput(elementId: string) { 
         const fileInput = document.getElementById(elementId) as HTMLInputElement
         if (fileInput.files?.length) { return await this.addFilesFromList(fileInput.files) }
     }
 
-    async addFiles({ files, elementId }: { 
+    async getOutputFiles(outputFiles: Record<string, string> = {}) { 
+        return await this.getFolderFiles({ 
+            folderName: 'output',
+            outputFiles
+        })
+    }
+
+    async addFiles({ files, elementId, obj }: { 
         files?: FileList
         elementId?: string
+        obj?: Record<string, any>
     }) { 
         if (files) { return await this.addFilesFromList(files) }
         else if (elementId) { return await this.addFilesFromInput(elementId) }
+        else if (obj) { return await this.addFilesFromObj(obj) }
+    }
+
+    public static formatFile(file: any) { 
+        if (typeof file === "string" || file instanceof Uint8Array) { return file }
+        else if (typeof file === "object") { return JSON.stringify(file) }
+        return String(file)
     }
 }
 
@@ -130,8 +162,7 @@ export class VNTextPatch extends MyWASM {
         const outputFiles = {} as Record<string, any>
         const proxy = new Proxy(outputFiles, { 
             get(target, prop: string, _) { return target[prop] },
-            set(target, oProp: string, value, _) { 
-                const prop = oProp.replace('.json', '')
+            set(target, prop: string, value, _) { 
                 try { target[prop] = JSON.parse(value) }
                 catch (e) { target[prop] = value }
                 return true
@@ -143,6 +174,7 @@ export class VNTextPatch extends MyWASM {
         })
             .then(() => this.execute(['extractlocal', 'input', 'output']))
             .then(() => this.getOutputFiles(proxy))
+
         
         //console.log(outputFiles)
         this.cleanDir('input'); this.cleanDir('output')
@@ -150,13 +182,26 @@ export class VNTextPatch extends MyWASM {
     }
 
     async extractLocalAsSheets(files?: FileList) { 
-        const outputFiles = await this.extractLocal<ILineJSON[] | string[][]>(files)
-        for (const fileName in outputFiles) { 
-            outputFiles[fileName] = outputFiles[fileName].map((line) => { 
-                return [ (line as ILineJSON).message, '', '', '', '' ]
+        const jsonFiles = await this.extractLocal<ILineJSON[]>(files)
+        const outputFiles = {} as Record<string, string[][]>
+        for (const fileName in jsonFiles) { 
+            outputFiles[fileName.replace('.json', '')] = jsonFiles[fileName].map((line) => { 
+                return [ line.message, '', '', '', '' ]
             })
         }
-        //console.log(outputFiles)
+        //console.log(jsonFiles)
         return outputFiles as Record<string, string[][]>
+    }
+
+    async insertLocal(srcFiles: FileList, jsonFiles: Record<string, ILineJSON[]>) { 
+        await this.addFilesFromList(srcFiles, "src_files")
+        await this.addFilesFromObj(jsonFiles)
+
+
+        const patchedFiles = await this.execute([ 'insertlocal', 'src_files', 'input', 'output' ])
+            .then(() => this.getOutputFiles())
+        console.log(patchedFiles)
+        this.cleanDir('input'); this.cleanDir('output'); this.cleanDir('src_files')
+        return patchedFiles
     }
 }
