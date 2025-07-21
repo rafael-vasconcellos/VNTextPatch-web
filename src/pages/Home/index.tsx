@@ -7,6 +7,7 @@ import ProjectName from '../../components/UploadFiles/ProjectName'
 import Explorer from '../Explorer'
 import LocalProjects from '../../components/LocalProjects'
 import SkeletonLoading from '../../components/SkeletonLoading'
+import RepoContextProvider from '../Explorer/context'
 
 
 export default function App() { 
@@ -53,7 +54,9 @@ export default function App() {
                 <SkeletonLoading />
             </Show>
             <Show when={isProjectOpen()}>
-                <Explorer projectName={project_name()} />
+                <RepoContextProvider projectName={project_name()}>
+                    <Explorer projectName={project_name()} />
+                </RepoContextProvider>
             </Show>
         </>
     )

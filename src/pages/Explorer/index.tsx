@@ -1,22 +1,21 @@
 import { createEffect, createSignal, For, Show } from "solid-js"
-import { Repo } from "../../global/Repo"
 import Sheet from "../../components/Sheet"
+import { useRepoContext } from "./context"
 
 
 interface ExplorerProps { 
-    projectName: string
-    //srcFiles: FileList
+    projectName?: string
 }
 
-export default function Explorer({ projectName }: ExplorerProps) { 
-    const repo = new Repo(projectName)
+export default function Explorer({  }: ExplorerProps) { 
+    const [ repo ] = useRepoContext()
     const [ current_file, setCurrentFile ] = createSignal<string>('')
     const [ project_files, setProjectFiles ] = createSignal<string[]>([])
     const [ sheet, setSheet ] = createSignal<string[][] | undefined>()
 
-    createEffect(async() => { 
-        repo.open()
-        const files = await repo.getSheets().then(sheets => sheets?.map(store => store.filename))
+    createEffect(async() => { console.log(repo())
+        repo()?.open()
+        const files = await repo()?.getSheets().then(sheets => sheets?.map(store => store.filename))
         if (files) { 
             setProjectFiles(files); setCurrentFile(files[0])
         }
@@ -24,7 +23,7 @@ export default function Explorer({ projectName }: ExplorerProps) {
 
     createEffect(async() => { 
         if (current_file()) { 
-            const s = await repo.getSheet(current_file())
+            const s = await repo()?.getSheet(current_file())
             s && setSheet(s)
         }
     })
@@ -44,7 +43,7 @@ export default function Explorer({ projectName }: ExplorerProps) {
             </section>
             <Show when={sheet()}>
                 <Sheet sheet={sheet} onChange={sheet => { 
-                    repo.updateSheet(current_file(), sheet)
+                    repo().updateSheet(current_file(), sheet)
                 }} />
             </Show>
         </main>
