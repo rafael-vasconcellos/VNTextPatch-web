@@ -1,7 +1,8 @@
+import type { JSX } from "solid-js"
 import { useRepoContext } from "../../pages/Explorer/context"
 
 
-export default function Export() { 
+export default function Export({ class: className }: JSX.ButtonHTMLAttributes<HTMLButtonElement>) { 
     const [ repo ] = useRepoContext()
     let button: HTMLButtonElement | undefined
 
@@ -18,8 +19,8 @@ export default function Export() {
 
 
     return ( 
-        <button class="cursor-pointer" onClick={extract} ref={button}>
-            <svg class="size-11"
+        <button class={className || 'size-8' + ' ' + "cursor-pointer"} onClick={extract} ref={button}>
+            <svg 
             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64.000000 64.000000"
             preserveAspectRatio="xMidYMid meet">
                 <g class="fill-white" transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" stroke="none">

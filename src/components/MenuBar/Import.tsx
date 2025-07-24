@@ -1,7 +1,8 @@
+import type { JSX } from "solid-js"
 import { useRepoContext } from "../../pages/Explorer/context"
 
 
-export default function Import() { 
+export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HTMLButtonElement>) { 
     const [ repo ] = useRepoContext()
 
     async function importFiles() { 
@@ -36,8 +37,8 @@ export default function Import() {
 
 
     return ( 
-        <button class="cursor-pointer" onClick={importFiles}>
-            <svg class="size-11"
+        <button class={className || 'size-8' + ' ' + "cursor-pointer"} onClick={importFiles}>
+            <svg 
             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
                 <g class="fill-white" transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" stroke="none">
                     <path d="M257 502 l-78 -79 3 -49 c2 -35 7 -49 18 -49 10 0 16 12 18 38 l3 37

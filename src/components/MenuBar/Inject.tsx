@@ -1,8 +1,9 @@
 import { useRepoContext } from "../../pages/Explorer/context"
 import { downloadObjFiles, vn } from '../../global/utils'
+import type { JSX } from "solid-js"
 
 
-export default function Inject() { 
+export default function Inject({ class: className }: JSX.ButtonHTMLAttributes<HTMLButtonElement>) { 
     const [ repo ] = useRepoContext()
 
     async function inject() { 
@@ -36,8 +37,8 @@ export default function Inject() {
 
 
     return ( 
-        <button class="cursor-pointer" onClick={inject}>
-            <svg class="size-11"
+        <button class={className || 'size-8' + ' ' + "cursor-pointer"} onClick={inject}>
+            <svg 
              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
                 <g class="fill-white"
                 transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" stroke="none">
