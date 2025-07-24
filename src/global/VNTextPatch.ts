@@ -9,17 +9,38 @@ interface ILineJSON {
 interface GetFolderOptions { 
     folderName: string
     outputFiles?: Record<string, string>
-    textDecoder?: TextDecoder
+    encoding?: string
 }
 
-export function downloadFile(fileContent: string, fileName: string = 'file', fileType: string = 'application/json') { 
-    const blob = new Blob([fileContent], { type: fileType })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = fileName
-    document.body.appendChild(a)
-    a.click()
+class MyTextDecoder { 
+    private uintArray: Uint8Array
+    private fileName?: string
+    constructor(uintArray: Uint8Array, fileName?: string) { 
+        this.uintArray = uintArray
+        this.fileName = fileName
+    }
+
+    public detectEncoding() { 
+        const binaryString = new TextDecoder('latin1').decode(this.uintArray);
+        const detected = jschardet.detect(binaryString);
+
+        if (detected.encoding) { 
+            console.log(`Detected encoding for ${this.fileName || ''}: ` + detected.encoding)
+            return detected.encoding
+        }
+
+        console.log(`Uint8Array decoding: using utf-8 fallback for ${this.fileName || ''} file.`)
+        return 'utf-8'
+    }
+
+    public getDecoder() { 
+        return new TextDecoder(this.detectEncoding())
+    }
+
+    public decode(encoding?: string) { 
+        if (encoding === 'auto' || !encoding) { return this.getDecoder().decode(this.uintArray) }
+        return new TextDecoder(encoding).decode(this.uintArray)
+    }
 }
 
 export class MyWASM { 
@@ -40,24 +61,6 @@ export class MyWASM {
         return runtime?.Module.FS 
     }
 
-    public static getTextDecoder(uint8Array: Uint8Array, fileName?: string) { 
-        const binaryString = new TextDecoder('latin1').decode(uint8Array);
-        const detected = jschardet.detect(binaryString);
-
-        if (detected.encoding) { 
-            console.log(`Detected encoding for ${fileName}: ` + detected.encoding)
-            return new TextDecoder(detected.encoding)
-        }
-        
-        console.log(`Uint8Array decoding: using utf-8 fallback for ${fileName} file.`)
-        return new TextDecoder('utf-8')
-    }
-
-    public static async getTextDecoderFromFiles(files: FileList) { 
-        const fileContent = new Uint8Array(await files[0].arrayBuffer())
-        return MyWASM.getTextDecoder(fileContent, files[0].name)
-    }
-
     protected async addFilesFromList(files: FileList, inputFolder: string = "input") { 
         const fileSystem = await this.getFileSystem()
         if (!fileSystem.analyzePath(inputFolder)?.exists) { fileSystem.mkdir(inputFolder) }
@@ -71,16 +74,15 @@ export class MyWASM {
         }
     }
 
-    async getFolderFiles({ folderName, outputFiles, textDecoder }: GetFolderOptions) { 
+    async getFolderFiles({ folderName, outputFiles, encoding }: GetFolderOptions) { 
         outputFiles ||= {}
-        textDecoder ||= new TextDecoder('utf-8')
         const fileSystem = await this.getFileSystem()
         const fileNames = await fileSystem.readdir(folderName)
         fileNames.forEach(async (folderItem: string) => { 
             const path_mode = fileSystem.stat(folderName + '/' + folderItem).mode
             if (folderItem !== '.' && folderItem != '..' && !fileSystem.isDir(path_mode)) { 
                 const file: Uint8Array = fileSystem.readFile(folderName + '/' + folderItem)
-                const fileString = textDecoder.decode(file)
+                const fileString = new MyTextDecoder(file).decode(encoding ?? 'utf-8')
                 outputFiles[folderItem] = fileString
             }
         })
@@ -199,8 +201,12 @@ export class VNTextPatch extends MyWASM {
 
 
         const patchedFiles = await this.execute([ 'insertlocal', 'src_files', 'input', 'output' ])
-            .then(() => this.getOutputFiles())
-        console.log(patchedFiles)
+            .then(() => this.getFolderFiles({ 
+                folderName: 'output',
+                encoding: 'auto'
+            }))
+
+        //console.log(patchedFiles)
         this.cleanDir('input'); this.cleanDir('output'); this.cleanDir('src_files')
         return patchedFiles
     }

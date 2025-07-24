@@ -14,7 +14,7 @@ export default function Explorer({  }: ExplorerProps) {
     const [ project_files, setProjectFiles ] = createSignal<string[]>([])
     const [ sheet, setSheet ] = createSignal<string[][] | undefined>()
 
-    createEffect(async() => { console.log(repo())
+    createEffect(async() => { //console.log(repo())
         repo()?.open()
         const files = await repo()?.getSheets().then(sheets => sheets?.map(store => store.filename))
         if (files) { 
