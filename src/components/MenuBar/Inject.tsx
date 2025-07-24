@@ -1,5 +1,5 @@
 import { useRepoContext } from "../../pages/Explorer/context"
-import { vn } from '../../global/utils'
+import { downloadObjFiles, vn } from '../../global/utils'
 
 
 export default function Inject() { 
@@ -29,7 +29,9 @@ export default function Inject() {
             }
         }
 
-        console.log(jsonFiles)
+        //console.log(jsonFiles)
+        const patched_files = await vn().insertLocal(fileList, jsonFiles)
+        downloadObjFiles(patched_files)
     }
 
 

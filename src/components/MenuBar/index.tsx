@@ -1,5 +1,6 @@
 import Export from "./Export";
 import Import from "./Import";
+import Inject from "./Inject";
 import New from "./New";
 import './style.css'
 
@@ -10,6 +11,7 @@ export default function MenuBar() {
             <New />
             <Import />
             <Export />
+            <Inject />
         </section>
     )
 }
