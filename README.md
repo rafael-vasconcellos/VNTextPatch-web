@@ -2,6 +2,13 @@
 
 WIP web UI for VNTextPatch. A completely serverless app made with vite, indexedDB and a [WebAssembly version](https://github.com/rafael-vasconcellos/VNTextPatch-net8) of VNTextPatch.
 
+## What is VNTextPatch?
+
+A tool that extracts text dialogue from Visual Novel files and then reinserts them for the sake of translation
+
+## Usage
+
+For use it, you'll have to extract the source files using a tool like [GARbro](https://github.com/morkt/GARbro)
 
 ## todo
 
