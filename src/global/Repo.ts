@@ -108,7 +108,7 @@ export class Repo {
 
         response.onsuccess = () => resolve(response.result)
         response.onerror = () => reject(response.error)
-        return promise as Promise<StoreItem>
+        return promise as Promise<StoreItem | undefined>
     }
 
     async getSheets() { 
@@ -131,5 +131,14 @@ export class Repo {
             filename: fileName,
             content: sheet
         } as StoreItem)
+    }
+
+    async getCharNames() { 
+        const char_names: Record<string, string> = {}
+        const sheet: string[][] | undefined = await this.getSheet("char_names").then(store => store?.content)
+        sheet?.forEach(row => { 
+            char_names[row[0]] = row.at(-1)!
+        })
+        return char_names
     }
 }

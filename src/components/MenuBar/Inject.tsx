@@ -7,7 +7,7 @@ export default function Inject({ class: className }: JSX.ButtonHTMLAttributes<HT
     const [ repo ] = useRepoContext()
 
     async function inject() { 
-        const [ { jsonFiles, fileList }, sheets ] = await Promise.all([ 
+        const [ { jsonFiles, fileList }, sheets, char_names ] = await Promise.all([ 
             repo().getSrcFileList()
                 .then(async fileList => ({ 
                     fileList,
@@ -16,7 +16,9 @@ export default function Inject({ class: className }: JSX.ButtonHTMLAttributes<HT
 
             repo().getSheets()
                 .then(storeItems => storeItems.map(storeItem => Object.values(storeItem))) 
-                .then((entries) => Object.fromEntries(entries) as Record<string, string[][]>)
+                .then((entries) => Object.fromEntries(entries) as Record<string, string[][]>),
+            
+            repo().getCharNames()
         ])
 
         //console.log(sheets); console.log(jsonFiles)
@@ -26,7 +28,11 @@ export default function Inject({ class: className }: JSX.ButtonHTMLAttributes<HT
             }
             for (let i=0; i<sheets[fileName].length; i++) { 
                 const messages = sheets[fileName][i].filter(m => m)
-                jsonFiles[fileName + '.json'][i].message = messages.at(-1) ?? messages[0]
+                const line = jsonFiles[fileName + '.json'][i]
+                line.message = messages.at(-1) ?? messages[0]
+                if (char_names[line.name] && char_names[line.name] !== line.name) { 
+                    line.name = char_names[line.name] 
+                }
             }
         }
 
