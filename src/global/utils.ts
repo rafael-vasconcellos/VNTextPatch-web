@@ -4,6 +4,7 @@ import { VNTextPatch } from "./VNTextPatch";
 
 export const [ isProjectOpen, setProjectStatus ] = createSignal(false)
 export const [ vn ] = createSignal(new VNTextPatch())
+export const [ projects, setProjects ] = createSignal<(string | undefined)[]>([])
 
 export async function downloadObjFiles(files: Record<string, any>) { 
     const dirHandle: FileSystemDirectoryHandle = await (window as any).showDirectoryPicker()

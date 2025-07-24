@@ -1,14 +1,14 @@
 import { For } from "solid-js"
-import { createEffect, createSignal } from "solid-js"
+import { createEffect } from "solid-js"
 import './style.css'
+import { projects, setProjects } from "../../global/utils"
 
 
 interface LocalProjectsProps { 
     onClick?: (s: string) => void
 }
 
-export default function LocalProjects({ onClick }: LocalProjectsProps) {
-    const [ projects, setProjects ] = createSignal<(string | undefined)[]>([])
+export default function LocalProjects({ onClick }: LocalProjectsProps) { 
     createEffect(getProjects)
 
     async function getProjects() { 

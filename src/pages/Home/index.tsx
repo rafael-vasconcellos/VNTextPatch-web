@@ -1,6 +1,6 @@
 import { createEffect, createSignal, Show } from 'solid-js'
 import { Repo } from '../../global/Repo'
-import { isProjectOpen, setProjectStatus, vn } from '../../global/utils'
+import { isProjectOpen, projects, setProjectStatus, vn } from '../../global/utils'
 import './style.css'
 import RepoContextProvider from '../Explorer/context'
 import Explorer from '../Explorer'
@@ -45,7 +45,10 @@ export default function App() {
                 </section>
             </Show>
             <Show when={src_files()?.length && !project_name()}>
-                <ProjectName onSubmit={(name: string) => setProjectName(name)} />
+                <ProjectName onSubmit={(name: string) => { 
+                    if (projects().includes(name)) { return alert('A project with this name already exists!') }
+                    setProjectName(name)
+                }} />
             </Show>
             <Show when={isProjectOpen()}>
                 <RepoContextProvider projectName={project_name()}>
