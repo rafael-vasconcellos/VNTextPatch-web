@@ -186,12 +186,19 @@ export class VNTextPatch extends MyWASM {
     async extractLocalAsSheets(files?: FileList) { 
         const jsonFiles = await this.extractLocal<ILineJSON[]>(files)
         const outputFiles = {} as Record<string, string[][]>
+        const char_names = new Set<string>()
         for (const fileName in jsonFiles) { 
             outputFiles[fileName.replace('.json', '')] = jsonFiles[fileName].map((line) => { 
+                if (line.name) { char_names.add(line.name) }
                 return [ line.message, '', '', '', '' ]
             })
         }
+
         //console.log(jsonFiles)
+        outputFiles.char_names = []
+        char_names.forEach(name => { 
+            (outputFiles.char_names as Array<string[]>).push([ name, '', '', '', '' ])
+        })
         return outputFiles as Record<string, string[][]>
     }
 
