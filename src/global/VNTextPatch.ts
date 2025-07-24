@@ -46,8 +46,9 @@ class MyTextDecoder {
 export class MyWASM { 
     public isInitialized: boolean = false
     public dotnetRuntime?: Promise<any>
-    constructor() { 
-        (import('../../wasm/dotnet.js' as any)).then(async({ dotnet }) => { 
+    constructor() { // @ts-ignore
+        (window.importDotNet as Promise<any>)
+        .then(async({ dotnet }) => { 
             this.dotnetRuntime = dotnet.create()
         }).catch(e => { 
             console.error('Failed to initialize .NET:', e);
