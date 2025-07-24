@@ -106,9 +106,9 @@ export class Repo {
         const store = transaction.objectStore("sheets")
         const response = store.get(fileName)
 
-        response.onsuccess = () => resolve(response.result?.content)
+        response.onsuccess = () => resolve(response.result)
         response.onerror = () => reject(response.error)
-        return promise as Promise<string[][]>
+        return promise as Promise<StoreItem>
     }
 
     async getSheets() { 

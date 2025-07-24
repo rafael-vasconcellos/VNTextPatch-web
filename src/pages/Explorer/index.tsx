@@ -2,6 +2,8 @@ import { createEffect, createSignal, For, Show } from "solid-js"
 import Sheet from "../../components/Sheet"
 import { useRepoContext } from "./context"
 import MenuBar from "../../components/MenuBar"
+import SkeletonLoading from "../../components/SkeletonLoading"
+import type { StoreItem } from "../../global/Repo"
 
 
 interface ExplorerProps { 
@@ -12,18 +14,21 @@ export default function Explorer({  }: ExplorerProps) {
     const [ repo ] = useRepoContext()
     const [ current_file, setCurrentFile ] = createSignal<string>('')
     const [ project_files, setProjectFiles ] = createSignal<string[]>([])
-    const [ sheet, setSheet ] = createSignal<string[][] | undefined>()
+    const [ sheet, setSheet ] = createSignal<StoreItem>()
 
     createEffect(async() => { //console.log(repo())
         repo()?.open()
-        const files = await repo()?.getSheets().then(sheets => sheets?.map(store => store.filename))
-        if (files) { 
-            setProjectFiles(files); setCurrentFile(files[0])
+        const sheets = await repo()?.getSheets()
+        const files = sheets?.map(store => store.filename)
+        if (files.length) { 
+            setProjectFiles(files)
+            setSheet(sheets[0])
+            setCurrentFile(files[0])
         }
     })
 
     createEffect(async() => { 
-        if (current_file()) { 
+        if (current_file() && current_file() !== sheet()?.filename) { 
             const s = await repo()?.getSheet(current_file())
             s && setSheet(s)
         }
@@ -31,7 +36,7 @@ export default function Explorer({  }: ExplorerProps) {
 
 
     return ( 
-        <>
+        <Show when={current_file() && sheet()} fallback={<SkeletonLoading />}>
             <MenuBar />
             <main class="p-14 flex gap-8">
                 <section class="h-fit bg-zinc-800 flex flex-col rounded-xl border-white border-x-2 border-y-[20px]">
@@ -50,6 +55,6 @@ export default function Explorer({  }: ExplorerProps) {
                     }} />
                 </Show>
             </main>
-        </>
+        </Show>
     )
 }

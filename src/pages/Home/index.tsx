@@ -7,7 +7,6 @@ import Explorer from '../Explorer'
 import UploadFiles from '../../components/UploadFiles'
 import ProjectName from '../../components/UploadFiles/ProjectName'
 import LocalProjects from '../../components/LocalProjects'
-import SkeletonLoading from '../../components/SkeletonLoading'
 
 
 export default function App() { 
@@ -47,9 +46,6 @@ export default function App() {
             </Show>
             <Show when={src_files()?.length && !project_name()}>
                 <ProjectName onSubmit={(name: string) => setProjectName(name)} />
-            </Show>
-            <Show when={src_files()?.length && project_name() && !isProjectOpen()}>
-                <SkeletonLoading />
             </Show>
             <Show when={isProjectOpen()}>
                 <RepoContextProvider projectName={project_name()}>

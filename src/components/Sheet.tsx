@@ -2,11 +2,12 @@ import { createEffect, type Accessor } from 'solid-js';
 import Handsontable from 'handsontable';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
+import type { StoreItem } from '../global/Repo';
 //import 'handsontable/styles/ht-theme-horizon.css';
 
 
 interface SheetProps { 
-    sheet: Accessor<string[][] | undefined>
+    sheet: Accessor<StoreItem | undefined>
     onChange?: (s: string[][]) => void
     addHook?: (
         key: "afterChange", 
@@ -21,7 +22,7 @@ export default function Sheet({ sheet, onChange }: SheetProps) {
     let section: HTMLElement | undefined
 
     createEffect(() => { //console.log(sheet())
-        if (sheet() instanceof Array && sheet()?.[0] instanceof Array && section) { 
+        if (sheet()?.content instanceof Array && sheet()?.content?.[0] instanceof Array && section) { 
             section.innerHTML = ''
             const hot = new Handsontable(section, { 
                 themeName: 'ht-theme-main-dark',
@@ -37,7 +38,7 @@ export default function Sheet({ sheet, onChange }: SheetProps) {
                 },
                 autoWrapRow: true,
                 autoWrapCol: true,
-                data: sheet()
+                data: sheet()!.content
             });
             
             hot.addHook('afterChange', (changes) => { 
