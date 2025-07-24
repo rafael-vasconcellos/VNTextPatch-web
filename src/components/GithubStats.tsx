@@ -25,7 +25,7 @@ async function getReleases(): Promise<string> {
 
 export default function GithubStats() { 
     createEffect(async() => { 
-        if (!release_name() || !stars_count()) { 
+        if (!release_name() || !stars_count()) { return
             const [ stars, release ] = await Promise.all([ getRepoStars(), getReleases() ])
             setStarsCount(stars)
             setReleaseName(release)
@@ -39,11 +39,11 @@ export default function GithubStats() {
                 {/* <span>{repo_path}</span> */}
             </a>
             <div class="py-1 flex gap-1 items-center">
-                <Show when={release_name()} fallback={<Fallback signal={release_name} />}>
+                <Show when={release_name()} fallback={<Fallback />}>
                     <GithubTagLogo />
                     <span class="pr-2">{release_name()}</span>
                 </Show>
-                <Show when={stars_count()} fallback={<Fallback signal={stars_count} />}>
+                <Show when={stars_count()} fallback={<Fallback />}>
                     <GithubStarsLogo />
                     <span>{stars_count()}</span>
                 </Show>
@@ -81,9 +81,9 @@ function GithubStarsLogo({ className }: GitHubLogoProps) {
     )
 }
 
-function Fallback({ signal }: { signal: any }) { 
+function Fallback({ signal }: { signal?: any }) { 
     return ( 
-        <Show when={signal() === null}>
+        <Show when={signal && signal() === null}>
             <p>Loading...</p>
         </Show>
     )
