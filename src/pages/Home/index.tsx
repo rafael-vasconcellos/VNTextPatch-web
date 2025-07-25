@@ -31,7 +31,7 @@ export default function App() {
         <>
             <Show when={!isProjectOpen()}>
                 <section class='w-screen h-screen flex flex-col justify-center items-center gap-8'>
-                    <div class='flex flex-col gap-8'>
+                    <div>
                         <Show when={!src_files()?.length && !isProjectOpen()}>
                             <UploadFiles ref={fileInput} onChange={() => { 
                                 if (fileInput?.files?.length) { setSrcFiles(fileInput.files) }
