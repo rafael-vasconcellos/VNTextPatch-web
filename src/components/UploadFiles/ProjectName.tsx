@@ -12,10 +12,13 @@ export default function ProjectName({ onSubmit }: Props) {
                 <input class="w-full p-2 border-zinc-800 border-2 rounded-lg"
                  type="text" placeholder="Insert project name"
                  ref={input} onkeyup={(e) => { 
-                    if (e.key === "Enter" && onSubmit) { onSubmit(e.currentTarget.value) }
+                    if (e.key === "Enter" && onSubmit && e.currentTarget.value) { onSubmit(e.currentTarget.value.replaceAll(' ', '-')) }
                 }} />
                 <div class="w-full flex justify-end">
-                    <button class="bg-white text-black font-bold rounded-lg px-4 py-1 mb-4" onClick={() => onSubmit(input?.value ?? '')}>
+                    <button class="bg-white text-black font-bold rounded-lg px-4 py-1 mb-4" onClick={() => { 
+                        const value = input?.value?.replaceAll(' ', '-')
+                        if (onSubmit && value) { onSubmit(value) }
+                    }}>
                         Start project
                     </button>
                 </div>
