@@ -39,11 +39,11 @@ export default function GithubStats() {
                 {/* <span>{repo_path}</span> */}
             </a>
             <div class="py-1 flex gap-1 items-center">
-                <Show when={release_name()} fallback={<Fallback />}>
+                <Show when={release_name()}>
                     <GithubTagLogo />
                     <span class="pr-2">{release_name()}</span>
                 </Show>
-                <Show when={stars_count()} fallback={<Fallback />}>
+                <Show when={stars_count()}>
                     <GithubStarsLogo />
                     <span>{stars_count()}</span>
                 </Show>
@@ -81,9 +81,9 @@ function GithubStarsLogo({ className }: GitHubLogoProps) {
     )
 }
 
-function Fallback({ signal }: { signal?: any }) { 
+export function Fallback(props: { value?: any }) { 
     return ( 
-        <Show when={signal && signal() === null}>
+        <Show when={props.value}>
             <p>Loading...</p>
         </Show>
     )
