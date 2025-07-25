@@ -19,7 +19,7 @@ export default function Export({ class: className }: JSX.ButtonHTMLAttributes<HT
 
 
     return ( 
-        <button class={className || 'size-8' + ' ' + "cursor-pointer"} onClick={extract} ref={button}>
+        <button class={(className || 'size-8') + ' ' + "cursor-pointer"} onClick={extract} ref={button}>
             <svg 
             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64.000000 64.000000"
             preserveAspectRatio="xMidYMid meet">

@@ -37,7 +37,7 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
 
 
     return ( 
-        <button class={className || 'size-8' + ' ' + "cursor-pointer"} onClick={importFiles}>
+        <button class={(className || 'size-8') + ' ' + "cursor-pointer"} onClick={importFiles}>
             <svg 
             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
                 <g class="fill-white" transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" stroke="none">

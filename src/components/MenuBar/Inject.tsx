@@ -43,7 +43,7 @@ export default function Inject({ class: className }: JSX.ButtonHTMLAttributes<HT
 
 
     return ( 
-        <button class={className || 'size-8' + ' ' + "cursor-pointer"} onClick={inject}>
+        <button class={(className || 'size-8') + ' ' + "cursor-pointer"} onClick={inject}>
             <svg 
              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
                 <g class="fill-white"
