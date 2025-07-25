@@ -50,7 +50,7 @@ export default function Explorer({  }: ExplorerProps) {
                     </For>
                 </section>
                 <Show when={sheet()}>
-                    <Sheet sheet={sheet} onChange={sheet => { 
+                    <Sheet sheet={sheet()} onChange={sheet => { 
                         repo().updateSheet(current_file(), sheet)
                     }} />
                 </Show>

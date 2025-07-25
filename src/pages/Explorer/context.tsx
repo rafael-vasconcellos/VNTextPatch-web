@@ -7,9 +7,9 @@ interface RepoContextProviderProps {
     children: any
 }
 
-const context = createSignal<Repo>({} as any)
-const [ _, setContextValue ] = context
-export const RepoContext = createContext<[ Accessor<Repo>, Setter<Repo> ]>(context)
+const contextSignal = createSignal<Repo>({} as any)
+const [ _, setContextValue ] = contextSignal
+export const RepoContext = createContext<[ Accessor<Repo>, Setter<Repo> ]>(contextSignal)
 
 export function useRepoContext() {
     const ctx = useContext(RepoContext)
@@ -20,7 +20,7 @@ export default function RepoContextProvider({ projectName, children }: RepoConte
     setContextValue(new Repo(projectName))
 
     return ( 
-        <RepoContext.Provider value={context}>
+        <RepoContext.Provider value={contextSignal}>
             {children}
         </RepoContext.Provider>
     )

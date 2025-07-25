@@ -1,4 +1,4 @@
-import { createEffect, type Accessor } from 'solid-js';
+import { createEffect } from 'solid-js';
 import Handsontable from 'handsontable';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
@@ -7,7 +7,7 @@ import type { StoreItem } from '../global/Repo';
 
 
 interface SheetProps { 
-    sheet: Accessor<StoreItem | undefined>
+    sheet?: StoreItem
     onChange?: (s: string[][]) => void
     addHook?: (
         key: "afterChange", 
@@ -18,11 +18,11 @@ interface SheetProps {
     ) => void
 }
 
-export default function Sheet({ sheet, onChange }: SheetProps) { 
+export default function Sheet(props: SheetProps) { 
     let section: HTMLElement | undefined
 
     createEffect(() => { //console.log(sheet())
-        if (sheet()?.content instanceof Array && sheet()?.content?.[0] instanceof Array && section) { 
+        if (props.sheet?.content instanceof Array && props.sheet?.content?.[0] instanceof Array && section) { 
             section.innerHTML = ''
             const hot = new Handsontable(section, { 
                 themeName: 'ht-theme-main-dark',
@@ -38,7 +38,7 @@ export default function Sheet({ sheet, onChange }: SheetProps) {
                 },
                 autoWrapRow: true,
                 autoWrapCol: true,
-                data: sheet()!.content
+                data: props.sheet!.content
             });
             
             hot.addHook('afterChange', (changes) => { 
@@ -46,7 +46,7 @@ export default function Sheet({ sheet, onChange }: SheetProps) {
                     const [ row, col, , value ] = change
                     if (col===0 && !value) { hot.alter('remove_row', row) }
                 })
-                onChange && onChange(hot.getData())
+                props.onChange && props.onChange(hot.getData())
             })
         }
     })
