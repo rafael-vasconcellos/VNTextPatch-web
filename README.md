@@ -1,6 +1,9 @@
 # About
 
-WIP web UI for VNTextPatch. A completely serverless app made with vite, indexedDB and a [WebAssembly version](https://github.com/rafael-vasconcellos/VNTextPatch-net8) of VNTextPatch.
+WIP web UI for VNTextPatch. A completely serverless app made with vite, indexedDB and a [WebAssembly version](https://github.com/rafael-vasconcellos/VNTextPatch-net8) of VNTextPatch.  
+
+[live app](https://vntextpatch.netlify.app/)
+
 
 ## What is VNTextPatch?
 
