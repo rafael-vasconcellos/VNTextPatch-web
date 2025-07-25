@@ -6,13 +6,20 @@ export const [ isProjectOpen, setProjectStatus ] = createSignal(false)
 export const [ vn ] = createSignal(new VNTextPatch())
 export const [ projects, setProjects ] = createSignal<(string | undefined)[]>([])
 
-export async function downloadObjFiles(files: Record<string, any>) { 
+export async function* downloadObjFiles(files: Record<string, any>) { 
     const dirHandle: FileSystemDirectoryHandle = await (window as any).showDirectoryPicker()
-    for (const fileName in files) { 
+    const fileNames = Object.keys(files)
+    for (let i=0; i<fileNames.length; i++) { 
+        const fileName = fileNames[i]
         const file = files[fileName]
         const fileHandle = await dirHandle.getFileHandle(fileName, { create: true })
         const writable = await fileHandle.createWritable()
-        writable.write(file)
+        yield { 
+            fileName,
+            index: i,
+            length: fileNames.length
+        }
+        await writable.write(file)
         writable.close()
     }
 }
