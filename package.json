@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "node wasm.download.mjs && vite",
+    "build": "node wasm.download.mjs && tsc -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -17,8 +17,10 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "@types/emscripten": "^1.40.1",
+    "axios": "^1.11.0",
     "tailwindcss": "^4.1.11",
     "typescript": "~5.8.3",
+    "unzipper": "^0.12.3",
     "vite": "^6.3.5",
     "vite-plugin-solid": "^2.11.7"
   }
