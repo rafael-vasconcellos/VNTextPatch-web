@@ -67,7 +67,7 @@ export default function Sheet(props: SheetProps) {
                 props.onChange && props.onChange(hot.getData())
             })
 
-            repo().addEventListener<"sheetupdate">("sheetupdate", evt => {
+            repo().addEventListener<"sheetimport">("sheetimport", evt => {
                 if (evt.data.filename === props.sheet?.filename) { hot.updateData(evt.data.content) }
             })
         }

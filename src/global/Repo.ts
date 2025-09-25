@@ -14,8 +14,8 @@ export interface Sheet extends StoreItem<string[][]> {
     translatedRows: number
 }
 
-interface EventMap {
-    sheetupdate: (e: {data: Sheet}) => void
+interface EventMap { 
+    sheetimport: (e: {data: Sheet}) => void
 }
 
 export class Repo { 
@@ -25,9 +25,9 @@ export class Repo {
     private eventListeners: {
     [K in keyof EventMap]: EventMap[K][];
   } = {
-    sheetupdate: []
+    sheetimport: []
   };
-    private static EventNames = ["sheetupdate"]
+    private static EventNames = ["sheetimport"]
     constructor(projectName?: string) { 
         if (projectName) { this.projectName = projectName }
     }
@@ -153,7 +153,7 @@ export class Repo {
 
     async importSheet(fileName: string, sheet: string[][]) {
         const data = await this.updateSheet(fileName, sheet)
-        this.eventListeners["sheetupdate"].forEach(handler => handler({ data }))
+        this.eventListeners["sheetimport"].forEach(handler => handler({ data }))
     }
 
     async getCharNames(): Promise<Record<string, string>> { 
