@@ -33,7 +33,7 @@ export default function Sheet(props: SheetProps) {
                 startCols: 5,
                 rowHeaders: true,
                 colHeaders: ["Original Text", "Initial", "Machine Translation", "Better Translation", "Best Translation"],
-                height: 'auto',
+                height: 500,
                 licenseKey: 'non-commercial-and-evaluation',
                 afterChange(change, source) {
                     if (source === 'loadData' || !change) { return }
