@@ -75,7 +75,8 @@ export class Repo {
         for (const fileName in outputFiles) { 
             store?.add({ 
                 filename: fileName,
-                content: outputFiles[fileName]
+                content: outputFiles[fileName],
+                rows: outputFiles[fileName].length,
             } as Sheet)
         }
     }
@@ -144,7 +145,6 @@ export class Repo {
         const data = { 
             filename: fileName,
             content: sheet,
-            rows: sheet.length,
             translatedRows: sheet.filter(rows => rows.filter(c=>c).length > 1).length
         } as Sheet
         store?.put(data)
