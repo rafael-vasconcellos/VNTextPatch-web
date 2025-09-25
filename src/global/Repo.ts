@@ -9,6 +9,11 @@ export interface StoreItem<T= any> {
     content: T
 }
 
+export interface Sheet extends StoreItem<string[][]> {
+    rows: number
+    translatedRows: number
+}
+
 
 export class Repo {  
     private request?: IDBOpenDBRequest
@@ -62,7 +67,7 @@ export class Repo {
             store?.add({ 
                 filename: fileName,
                 content: outputFiles[fileName]
-            } as StoreItem<string[][]>)
+            } as Sheet)
         }
     }
 
@@ -99,7 +104,7 @@ export class Repo {
         return dataTransfer.files
     }
 
-    async getSheet(fileName: string): Promise<StoreItem<string[][]>> { 
+    async getSheet(fileName: string): Promise<Sheet> { 
         const db = await this.getDb()
         const { promise, resolve, reject } = Promise.withResolvers()
         const transaction = db.transaction("sheets", "readonly")
@@ -108,10 +113,10 @@ export class Repo {
 
         response.onsuccess = () => resolve(response.result ?? {} as any)
         response.onerror = () => reject(response.error)
-        return promise as Promise<StoreItem<string[][]>>
+        return promise as Promise<Sheet>
     }
 
-    async getSheets(): Promise<StoreItem<string[][]>[]> { 
+    async getSheets(): Promise<Sheet[]> { 
         const db = await this.getDb()
         const { promise, resolve, reject } = Promise.withResolvers()
         const transaction = db.transaction("sheets", "readonly")
@@ -120,7 +125,7 @@ export class Repo {
 
         response.onsuccess = () => resolve(response.result)
         response.onerror = () => reject(response.error)
-        return promise as Promise<StoreItem<string[][]>[]>
+        return promise as Promise<Sheet[]>
     }
 
     async updateSheet(fileName: string, sheet: string[][]) { 
@@ -129,8 +134,10 @@ export class Repo {
         const store = transaction?.objectStore("sheets")
         store?.put({ 
             filename: fileName,
-            content: sheet
-        } as StoreItem)
+            content: sheet,
+            rows: sheet.length,
+            translatedRows: sheet.filter(rows => rows.filter(c=>c).length > 1).length
+        } as Sheet)
     }
 
     async getCharNames(): Promise<Record<string, string>> { 
