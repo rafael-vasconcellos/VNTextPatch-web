@@ -25,7 +25,7 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
             if (!sheetNames.includes(fileName)) { continue }
             const file = await handle.getFile()
             const content = await file.text()
-                .then(fileString => fileString.split('\n'))
+                .then(fileString => fileString.split('\r\n'))
                 .then(csvLines => csvLines.map(line => { 
                     const r = line.split(',')
                     if (r.length < 5) { 
@@ -36,15 +36,26 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
                 }))
 
 
+            let updated = false
             const prevSheet = (await repo().getSheet(fileName)).content
             content.forEach(row => { 
-                const original_text = row[0]
+                row[0] = row[0]?.replaceAll('"', "")
+                const [ original_text, ...translations ] = row ?? []
                 const prevIndex = prevSheet.findIndex(prevRow => prevRow[0] === original_text)
-                const prevRow = prevSheet[prevIndex]
-                const mergedRow = row.map((cell, i) => cell || i<prevRow.length? prevRow[i] : "")
-                prevSheet[prevIndex] = mergedRow
+                if (prevIndex >= 0) {
+                    const prevRow = prevSheet[prevIndex]
+                    const mergedRow = [
+                        original_text,
+                        ...translations.map((cell, i) => {
+                            if (cell === '""') cell = ""
+                            return cell || (i<prevRow.length? prevRow[i] : '')
+                        })
+                    ]
+                    prevSheet[prevIndex] = mergedRow
+                    updated = true
+                }
             })
-            repo().updateSheet(fileName, prevSheet)
+            if (updated) { repo().updateSheet(fileName, prevSheet);console.log("updated!") }
         }
     }
 
