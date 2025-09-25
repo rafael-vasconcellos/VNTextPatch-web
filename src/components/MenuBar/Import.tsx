@@ -28,14 +28,14 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
             ],
         })
 
-        for (const handle of files) { 
+        files.forEach(async handle => { 
             const sheetNames = await repo().getSheetNames()
             const fileNameWithExt = handle.name
             const fileName = fileNameWithExt.replace('.csv', '')
-            if (!sheetNames.includes(fileName)) { continue }
+            if (!sheetNames.includes(fileName)) { return }
             const file = await handle.getFile()
             const content = await parseCSV(await file.text())
-            if (!content) { continue }
+            if (!content) { return }
 
 
             let updated = false
@@ -59,7 +59,7 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
             })
 
             if (updated) { repo().importSheet(fileName, prevSheet);console.log("updated!") }
-        }
+        })
     }
 
 
