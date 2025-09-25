@@ -2,11 +2,21 @@
 
 
 @theme { 
-    --color-handsontable: #050506
+    --color-handsontable: oklch(21% 0.006 285.885);
+    --color-handsontable-foreground: #c7c7c7;
+    --color-handsontable-border: #313132;
+    --color-foreground: white;
+    --color-primary: oklch(50% 0.134 242.749);
+    --color-primary-dark: oklch(29.3% 0.066 243.157);
+    /* --color-primary: oklch(50% 0.134 242.749); */
 }
 
 body {
-    background-color: oklch(14.7% 0.004 49.25);
-    /* background-color: #161B22; */
+    /* background: linear-gradient(90deg, oklch(58.8% 0.158 241.966) 0%, oklch(13% 0.028 261.692) 100%); */
+    background: linear-gradient(125deg, #0a0a0a 20%, oklch(29.3% 0.066 243.157) 55%, #0a0a0a 85%);
+    /* background-repeat: no-repeat; */
     color: #fff;
+    overflow: scroll;
+    width: 100vw;
+    height: fit-content;
 }

@@ -25,10 +25,10 @@ export default function LocalProjects({ onClick }: LocalProjectsProps) {
 
     return ( 
         <section class="w-full flex flex-col gap-5">
-            <span class="text-xl font-bold text-zinc-500">Local saved projects</span>
+            { projects().length && <span class="text-xl font-bold text-zinc-500">Local saved projects</span> }
             <For each={projects()}>
                 { projectName => 
-                    <button class="p-4 text-xl border-2 border-zinc-800 rounded-lg cursor-pointer relative hover:bg-white hover:text-black" 
+                    <button class="p-4 text-xl border-2 border-zinc-600 rounded-lg cursor-pointer relative hover:bg-white hover:text-black hover:border-transparent" 
                     onClick={() => onClick && onClick(projectName as string)}>
                         {projectName}
                         <svg class="size-6 p-1 text-white bg-red-800 absolute top-0 right-0" stroke="currentColor" stroke-width="1.5" 

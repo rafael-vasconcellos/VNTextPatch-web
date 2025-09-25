@@ -2,7 +2,8 @@ import { createEffect } from 'solid-js';
 import Handsontable from 'handsontable';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
-import type { StoreItem } from '../global/Repo';
+import './style.css';
+import type { StoreItem } from '../../global/Repo';
 //import 'handsontable/styles/ht-theme-horizon.css';
 
 

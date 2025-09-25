@@ -50,10 +50,10 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
 
 
     return ( 
-        <button class={(className || 'size-8') + ' ' + "cursor-pointer"} onClick={importFiles}>
+        <button class={`${className || 'size-8'} cursor-pointer group`} onClick={importFiles}>
             <svg 
             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
-                <g class="fill-white" transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" stroke="none">
+                <g class="fill-primary group-hover:fill-primary/60" transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" stroke="none">
                     <path d="M257 502 l-78 -79 3 -49 c2 -35 7 -49 18 -49 10 0 16 12 18 38 l3 37
                     50 0 c67 0 89 22 89 90 l0 51 78 -3 77 -3 0 -215 0 -215 -145 0 -145 0 -5 45
                     c-3 31 -10 45 -20 45 -11 0 -16 -13 -18 -47 -2 -37 1 -51 17 -67 19 -19 33

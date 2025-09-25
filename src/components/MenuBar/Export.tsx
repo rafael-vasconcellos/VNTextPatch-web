@@ -25,11 +25,11 @@ export default function Export({ class: className }: JSX.ButtonHTMLAttributes<HT
 
     return ( 
         <>
-            <button class={(className || 'size-8') + ' ' + "cursor-pointer"} onClick={extract} ref={button}>
+            <button class={`${className || 'size-8'} cursor-pointer group`} onClick={extract} ref={button}>
                 <svg 
                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64.000000 64.000000"
                 preserveAspectRatio="xMidYMid meet">
-                    <g class="fill-white" transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" stroke="none">
+                    <g class="fill-primary group-hover:fill-primary/60" transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" stroke="none">
                         <path d="M100 560 c-19 -19 -20 -33 -20 -240 0 -281 -15 -260 190 -260 138 0
                         152 2 171 21 16 16 19 30 17 67 -2 34 -7 47 -18 47 -10 0 -17 -14 -20 -45 l-5
                         -45 -145 0 -145 0 0 215 0 215 78 3 77 3 0 -51 c0 -68 22 -90 89 -90 l50 0 3

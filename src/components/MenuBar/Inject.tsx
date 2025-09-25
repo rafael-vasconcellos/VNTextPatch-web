@@ -51,10 +51,10 @@ export default function Inject({ class: className }: JSX.ButtonHTMLAttributes<HT
 
     return ( 
         <>
-            <button class={(className || 'size-8') + ' ' + "cursor-pointer"} onClick={inject}>
+            <button class={`${className || 'size-8'} cursor-pointer group`} onClick={inject}>
                 <svg 
                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
-                    <g class="fill-white"
+                    <g class="fill-primary group-hover:fill-primary/60"
                     transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" stroke="none">
                         <path d="M480 622 c0 -10 11 -29 25 -42 l25 -24 -35 -36 c-27 -28 -32 -39 -23
                         -48 9 -9 20 -4 48 23 l36 35 24 -25 c25 -26 60 -34 60 -12 0 16 -131 147 -148

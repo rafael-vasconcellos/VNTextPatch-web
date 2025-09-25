@@ -39,10 +39,10 @@ export default function Explorer({  }: ExplorerProps) {
         <Show when={current_file() && sheet()} fallback={<SkeletonLoading />}>
             <MenuBar />
             <main class="p-14 flex gap-8">
-                <section class="h-fit bg-zinc-800 flex flex-col rounded-xl border-white border-x-2 border-y-[20px]">
+                <section class="h-fit bg-zinc-800 flex flex-col rounded-xl border-primary border-x-3 border-y-[20px]">
                     <For each={project_files()}>
                         { fileName => 
-                            <button class="px-3 cursor-pointer bg-handsontable text-left border-white border-[1px]"
+                            <button class="px-3 py-2 cursor-pointer bg-handsontable text-handsontable-foreground text-left border-handsontable-border border-y-[1px]"
                             onClick={() => setCurrentFile(fileName)}>
                                 {fileName}
                             </button> 

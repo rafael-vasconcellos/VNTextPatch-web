@@ -1,0 +1,17 @@
+.ht-theme-main-dark {
+    --ht-background-color: oklch(21% 0.006 285.885);
+    /* --ht-foreground-color: #c7c7c7; 
+    --ht-border-color: #313132;*/
+}
+
+.ht-root-wrapper .wtHolder, .ht-root-wrapper .ht-wrapper, .ht-root-wrapper .ht_master {
+    overflow: visible !important;
+}
+
+.ht-root-wrapper td {
+    overflow: hidden;
+}
+
+.ht-root-wrapper colgroup > col {
+    width: 215px !important;
+}
