@@ -3,7 +3,7 @@ import Sheet from "../../components/Sheet"
 import { useRepoContext } from "./context"
 import MenuBar from "../../components/MenuBar"
 import SkeletonLoading from "../../components/SkeletonLoading"
-import type { StoreItem } from "../../global/Repo"
+import type { Sheet as ISheet } from "../../global/Repo"
 
 
 interface ExplorerProps { 
@@ -14,7 +14,7 @@ export default function Explorer({  }: ExplorerProps) {
     const [ repo ] = useRepoContext()
     const [ current_file, setCurrentFile ] = createSignal<string>('')
     const [ project_files, setProjectFiles ] = createSignal<string[]>([])
-    const [ sheet, setSheet ] = createSignal<StoreItem>()
+    const [ sheet, setSheet ] = createSignal<ISheet>()
 
     createEffect(async() => { //console.log(repo())
         repo()?.open()

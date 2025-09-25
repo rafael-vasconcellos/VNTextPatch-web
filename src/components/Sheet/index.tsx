@@ -4,12 +4,12 @@ import { useRepoContext } from '../../pages/Explorer/context';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
 import './style.css';
-import type { StoreItem } from '../../global/Repo';
+import type { Sheet } from '../../global/Repo';
 //import 'handsontable/styles/ht-theme-horizon.css';
 
 
 interface SheetProps { 
-    sheet?: StoreItem
+    sheet?: Sheet
     onChange?: (s: string[][]) => void
     addHook?: (
         key: "afterChange", 
@@ -68,7 +68,7 @@ export default function Sheet(props: SheetProps) {
             })
 
             repo().addEventListener<"sheetupdate">("sheetupdate", evt => {
-                hot.updateData(evt.data.content)
+                if (evt.data.filename === props.sheet?.filename) { hot.updateData(evt.data.content) }
             })
         }
     })
