@@ -149,7 +149,6 @@ export class Repo {
         const store = transaction.objectStore("sheets")
         const response = store.getAllKeys()
 
-        response.result.forEach(i => i)
         response.onsuccess = () => resolve(response.result)
         response.onerror = () => reject(response.error)
         return promise as Promise<IDBValidKey[]>
