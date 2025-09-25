@@ -3,6 +3,15 @@ import { useRepoContext } from "../../pages/Explorer/context"
 import Papa from "papaparse"
 
 
+async function parseCSV(csvText: string): Promise<string[][] | void> {
+    try {
+        return (Papa.parse(csvText).data as string[][]).map(row => {
+            if (row.length < 5) row.push(...Array(5 - row.length).fill(''));
+            return row;
+        })
+    } catch (e) { console.error(e) }
+}
+
 export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HTMLButtonElement>) { 
     const [ repo ] = useRepoContext()
 
@@ -25,10 +34,8 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
             const fileName = fileNameWithExt.replace('.csv', '')
             if (!sheetNames.includes(fileName)) { continue }
             const file = await handle.getFile()
-            const content = (Papa.parse(await file.text()).data as string[][]).map(row => {
-                if (row.length < 5) row.push(...Array(5 - row.length).fill(''));
-                return row;
-            })
+            const content = await parseCSV(await file.text())
+            if (!content) { continue }
 
 
             let updated = false
@@ -50,6 +57,7 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
                     updated = true
                 }
             })
+
             if (updated) { repo().importSheet(fileName, prevSheet);console.log("updated!") }
         }
     }
