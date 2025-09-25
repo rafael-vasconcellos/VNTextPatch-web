@@ -148,6 +148,11 @@ export class Repo {
             translatedRows: sheet.filter(rows => rows.filter(c=>c).length > 1).length
         } as Sheet
         store?.put(data)
+        return data
+    }
+
+    async importSheet(fileName: string, sheet: string[][]) {
+        const data = await this.updateSheet(fileName, sheet)
         this.eventListeners["sheetupdate"].forEach(handler => handler({ data }))
     }
 

@@ -67,8 +67,7 @@ export default function Sheet(props: SheetProps) {
             })
 
             repo().addEventListener<"sheetupdate">("sheetupdate", evt => {
-                //hot.updateData(evt.data.content)
-                console.log("dada")
+                hot.updateData(evt.data.content)
             })
         }
     })

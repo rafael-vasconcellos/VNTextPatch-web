@@ -55,7 +55,7 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
                     updated = true
                 }
             })
-            if (updated) { repo().updateSheet(fileName, prevSheet);console.log("updated!") }
+            if (updated) { repo().importSheet(fileName, prevSheet);console.log("updated!") }
         }
     }
 
