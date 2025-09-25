@@ -1,5 +1,5 @@
 import { createContext, createSignal, useContext, type Accessor, type Setter } from "solid-js";
-import { Repo } from "../../global/Repo";
+import { ProjectRepo } from "../../global/Repo";
 
 
 interface RepoContextProviderProps { 
@@ -7,9 +7,9 @@ interface RepoContextProviderProps {
     children: any
 }
 
-const contextSignal = createSignal<Repo>({} as any)
+const contextSignal = createSignal<ProjectRepo>({} as any)
 const [ _, setContextValue ] = contextSignal
-export const RepoContext = createContext<[ Accessor<Repo>, Setter<Repo> ]>(contextSignal)
+export const RepoContext = createContext<[ Accessor<ProjectRepo>, Setter<ProjectRepo> ]>(contextSignal)
 
 export function useRepoContext() {
     const ctx = useContext(RepoContext)
@@ -17,7 +17,7 @@ export function useRepoContext() {
 }
 
 export default function RepoContextProvider({ projectName, children }: RepoContextProviderProps) { 
-    setContextValue(new Repo(projectName))
+    setContextValue(new ProjectRepo(projectName))
 
     return ( 
         <RepoContext.Provider value={contextSignal}>

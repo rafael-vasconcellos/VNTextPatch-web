@@ -1,5 +1,5 @@
 import { createEffect, createSignal, Show } from 'solid-js'
-import { Repo } from '../../global/Repo'
+import { ProjectRepo } from '../../global/Repo'
 import { isProjectOpen, projects, setProjectStatus, vn } from '../../global/utils'
 import './style.css'
 import RepoContextProvider from '../Explorer/context'
@@ -10,7 +10,7 @@ import LocalProjects from '../../components/LocalProjects'
 
 
 export default function App() { 
-    const repo = new Repo()
+    const repo = new ProjectRepo()
     const [ project_name, setProjectName ] = createSignal('')
     const [ src_files, setSrcFiles ] = createSignal<FileList>()
     let fileInput: HTMLInputElement | undefined

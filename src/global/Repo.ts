@@ -18,17 +18,74 @@ interface EventMap {
     sheetimport: (e: {data: Sheet}) => void
 }
 
-export class Repo { 
-    private request?: IDBOpenDBRequest
+
+
+export abstract class Repo {
+    protected _isOpen: boolean = false
+    protected request?: IDBOpenDBRequest
+
+    abstract create(init?: any): void
+    abstract open(): void
+
+    get isOpen() { return this._isOpen }
+
+    protected async getDb() { 
+        const { promise, resolve, reject } = Promise.withResolvers()
+        if (this.request && this.request.readyState === "pending") { 
+            this.request.onsuccess = () => { resolve(this.request!.result) }
+            this.request.onerror = () => { reject(this.request!.error) }
+        }
+        else if (this.request && this.request.readyState === "done") { resolve(this.request.result) }
+        else if (!this.request) { reject("IndexedDB Repo Error: Request is not defined.") }
+        return promise as Promise<IDBDatabase>
+    }
+
+    protected async getStoreItem<T= any>(storeName: string, key: string): Promise<T> { 
+        if (!storeName || !key) throw new Error("Store data missing!")
+        const db = await this.getDb()
+        const { promise, resolve, reject } = Promise.withResolvers()
+        const transaction = db.transaction(storeName, "readonly")
+        const store = transaction.objectStore(storeName)
+        const response = store.get(key)
+
+        response.onsuccess = () => resolve(response.result ?? {} as any)
+        response.onerror = () => reject(response.error)
+        return promise as Promise<any>
+    }
+
+    protected async getStoreItems<T= any>(storeName: string): Promise<T[]> { 
+        if (!storeName) throw new Error("Store data missing!")
+        const db = await this.getDb()
+        const { promise, resolve, reject } = Promise.withResolvers()
+        const transaction = db.transaction(storeName, "readonly")
+        const store = transaction.objectStore(storeName)
+        const response = store.getAll()
+
+        response.onsuccess = () => resolve(response.result)
+        response.onerror = () => reject(response.error)
+        return promise as Promise<any>
+    }
+
+    protected async updateStoreItem(storeName: string, value: any) { 
+        if (!storeName || !value) throw new Error("Store data missing!")
+        const db = await this.getDb()
+        const transaction = db?.transaction(storeName, "readwrite")
+        const store = transaction?.objectStore(storeName)
+        store?.put(value)
+    }
+
+}
+
+export class ProjectRepo extends Repo { 
     public projectName?: string
-    private _isOpen: boolean = false
     private eventListeners: {
-    [K in keyof EventMap]: EventMap[K][];
-  } = {
-    sheetimport: []
-  };
-    private static EventNames = ["sheetimport"]
+        [K in keyof EventMap]: EventMap[K][];
+    } = {
+        sheetimport: []
+    };
+    private static EventNames: (keyof EventMap)[] = ["sheetimport"]
     constructor(projectName?: string) { 
+        super()
         if (projectName) { this.projectName = projectName }
     }
 
@@ -58,19 +115,6 @@ export class Repo {
         this._isOpen = true
     }
 
-    get isOpen() { return this._isOpen }
-
-    private async getDb() { 
-        const { promise, resolve, reject } = Promise.withResolvers()
-        if (this.request && this.request.readyState === "pending") { 
-            this.request.onsuccess = () => { resolve(this.request!.result) }
-            this.request.onerror = () => { reject(this.request!.error) }
-        }
-        else if (this.request && this.request.readyState === "done") { resolve(this.request.result) }
-        else if (!this.request) { reject("IndexedDB Repo Error: Request is not defined.") }
-        return promise as Promise<IDBDatabase>
-    }
-
     private insertSheets(store: IDBObjectStore, outputFiles: Record<string, string[][]>) { 
         for (const fileName in outputFiles) { 
             store?.add({ 
@@ -92,16 +136,8 @@ export class Repo {
         for (const file of files) { store?.add(file) }
     }
 
-    async getSrcFiles<T= any>(): Promise<StoreItem<T>[]> { 
-        const db = await this.getDb()
-        const { promise, resolve, reject } = Promise.withResolvers()
-        const transaction = db.transaction("source_files", "readonly")
-        const store = transaction.objectStore("source_files")
-        const response = store.getAll()
-
-        response.onsuccess = () => resolve(response.result)
-        response.onerror = () => reject(response.error)
-        return promise as Promise<StoreItem<T>[]>
+    getSrcFiles<T= any>(): Promise<StoreItem<T>[]> { 
+        return this.getStoreItems("source_files")
     }
 
     async getSrcFileList(): Promise<FileList> { 
@@ -114,40 +150,21 @@ export class Repo {
         return dataTransfer.files
     }
 
-    async getSheet(fileName: string): Promise<Sheet> { 
-        const db = await this.getDb()
-        const { promise, resolve, reject } = Promise.withResolvers()
-        const transaction = db.transaction("sheets", "readonly")
-        const store = transaction.objectStore("sheets")
-        const response = store.get(fileName)
-
-        response.onsuccess = () => resolve(response.result ?? {} as any)
-        response.onerror = () => reject(response.error)
-        return promise as Promise<Sheet>
+    getSheet(fileName: string): Promise<Sheet> { 
+        return this.getStoreItem("sheets", fileName)
     }
 
-    async getSheets(): Promise<Sheet[]> { 
-        const db = await this.getDb()
-        const { promise, resolve, reject } = Promise.withResolvers()
-        const transaction = db.transaction("sheets", "readonly")
-        const store = transaction.objectStore("sheets")
-        const response = store.getAll()
-
-        response.onsuccess = () => resolve(response.result)
-        response.onerror = () => reject(response.error)
-        return promise as Promise<Sheet[]>
+    getSheets(): Promise<Sheet[]> { 
+        return this.getStoreItems("sheets")
     }
 
-    async updateSheet(fileName: string, sheet: string[][]) { 
-        const db = await this.getDb()
-        const transaction = db?.transaction("sheets", "readwrite")
-        const store = transaction?.objectStore("sheets")
+    async updateSheet(fileName: string, sheet: string[][]): Promise<Sheet> { 
         const data = { 
             filename: fileName,
             content: sheet,
             translatedRows: sheet.filter(rows => rows.filter(c=>c).length > 1).length
         } as Sheet
-        store?.put(data)
+        await this.updateStoreItem("sheets", data)
         return data
     }
 
@@ -178,14 +195,14 @@ export class Repo {
     }
 
     addEventListener<K extends keyof EventMap>(eventName: keyof EventMap, handler: EventMap[K]) {
-        if (Repo.EventNames.includes(eventName)) { 
+        if (ProjectRepo.EventNames.includes(eventName)) { 
             if (!this.eventListeners[eventName]) { this.eventListeners[eventName] = [] }
             this.eventListeners[eventName].push(handler)
         }
     }
 
     removeEventListener(eventName: keyof EventMap, handler: any) {
-        if (Repo.EventNames.includes(eventName)) {
+        if (ProjectRepo.EventNames.includes(eventName)) {
             const index = this.eventListeners[eventName].indexOf(handler)
             this.eventListeners[eventName].splice(index, 1)
         }
