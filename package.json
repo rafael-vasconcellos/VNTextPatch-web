@@ -12,11 +12,13 @@
     "@solidjs/router": "^0.15.3",
     "handsontable": "^16.0.1",
     "jschardet": "^3.1.4",
+    "papaparse": "^5.5.3",
     "solid-js": "^1.9.7"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "@types/emscripten": "^1.40.1",
+    "@types/papaparse": "^5.3.16",
     "axios": "^1.11.0",
     "tailwindcss": "^4.1.11",
     "typescript": "~5.8.3",

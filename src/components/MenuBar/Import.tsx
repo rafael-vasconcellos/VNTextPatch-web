@@ -1,5 +1,6 @@
 import type { JSX } from "solid-js"
 import { useRepoContext } from "../../pages/Explorer/context"
+import Papa from "papaparse"
 
 
 export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HTMLButtonElement>) { 
@@ -24,16 +25,10 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
             const fileName = fileNameWithExt.replace('.csv', '')
             if (!sheetNames.includes(fileName)) { continue }
             const file = await handle.getFile()
-            const content = await file.text()
-                .then(fileString => fileString.split('\r\n'))
-                .then(csvLines => csvLines.map(line => { 
-                    const r = line.split(',')
-                    if (r.length < 5) { 
-                        const n = 5 - r.length
-                        for (let i=1; i<=n; i++) { r.push('') }
-                    }
-                    return r
-                }))
+            const content = (Papa.parse(await file.text()).data as string[][]).map(row => {
+                if (row.length < 5) row.push(...Array(5 - row.length).fill(''));
+                return row;
+            })
 
 
             let updated = false
