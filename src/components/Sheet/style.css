@@ -15,3 +15,16 @@
 .ht-root-wrapper colgroup > col {
     width: 215px !important;
 }
+
+.ht-root-wrapper {
+    /* background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding:28px;
+    border-radius:14px;
+    border: 1px solid rgba(255,255,255,0.04);
+    display:grid;
+    grid-template-columns:1fr 320px;
+    gap:20px;
+    align-items:center; */
+    box-shadow: 0 10px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    backdrop-filter: blur(6px) saturate(120%);
+}

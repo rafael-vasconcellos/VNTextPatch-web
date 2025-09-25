@@ -2,19 +2,32 @@
 
 
 @theme { 
-    --color-handsontable: oklch(21% 0.006 285.885);
+    --color-handsontable-background: oklch(21% 0.006 285.885);
+    /* --color-handsontable-background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); */
     --color-handsontable-foreground: #c7c7c7;
     --color-handsontable-border: #313132;
+    --font-handsontable: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Helvetica Neue, Arial, sans-serif;
+
     --color-foreground: white;
-    --color-primary: oklch(50% 0.134 242.749);
+    --color-primary: oklch(72.516% 0.13606 234.094);
     --color-primary-dark: oklch(29.3% 0.066 243.157);
     /* --color-primary: oklch(50% 0.134 242.749); */
 }
 
+:root {
+    --bg:#0f1724;
+}
+
 body {
-    /* background: linear-gradient(90deg, oklch(58.8% 0.158 241.966) 0%, oklch(13% 0.028 261.692) 100%); */
-    background: linear-gradient(125deg, #0a0a0a 20%, oklch(29.3% 0.066 243.157) 55%, #0a0a0a 85%);
-    /* background-repeat: no-repeat; */
+    /* background: linear-gradient(125deg, #0a0a0a 20%, oklch(29.3% 0.066 243.157) 55%, #0a0a0a 85%); */
+    /* font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; */
+    margin:0;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.08), transparent),
+                radial-gradient(1000px 500px at 90% 90%, rgba(6,182,212,0.06), transparent),
+                var(--bg);
+    color:#e6eef6;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
     color: #fff;
     overflow: scroll;
     width: 100vw;
