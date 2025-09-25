@@ -31,7 +31,7 @@ export default function Sheet(props: SheetProps) {
                 themeName: 'ht-theme-main-dark',
                 //startRows: 8,
                 startCols: 5,
-                rowHeaders: false,
+                rowHeaders: true,
                 colHeaders: ["Original Text", "Initial", "Machine Translation", "Better Translation", "Best Translation"],
                 height: 'auto',
                 licenseKey: 'non-commercial-and-evaluation',
@@ -55,7 +55,8 @@ export default function Sheet(props: SheetProps) {
                     }, {
                         data: 4,
                     }, 
-                ]
+                ],
+                renderAllColumns: false
             });
             
             hot.addHook('afterChange', (changes) => { 

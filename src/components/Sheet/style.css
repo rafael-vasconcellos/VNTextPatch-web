@@ -12,7 +12,7 @@
     overflow: hidden;
 }
 
-.ht-root-wrapper colgroup > col {
+.ht-root-wrapper colgroup > col:not(:first-child) {
     width: 215px !important;
 }
 
