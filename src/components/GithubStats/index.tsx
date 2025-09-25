@@ -69,8 +69,8 @@ export default function CTA() {
             </svg>
 
             <span class="inline-block text-left">
-                <div class="text-[15px]">Contribuir no GitHub</div>
-                <div class="text-[12px] opacity-90">Abra issues, envie PRs ou deutscher um ⭐</div>
+                <div class="text-[15px]">Contribute on GitHub</div>
+                <div class="text-[12px] opacity-90">Open issues, Pull Requests, or leave a ⭐</div>
             </span>
         </a>
     )

@@ -16,7 +16,7 @@
     width: 215px !important;
 }
 
-.ht-root-wrapper {
+.ht-root-wrapper .wtHider {
     /* background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
     padding:28px;
     border-radius:14px;

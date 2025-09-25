@@ -38,15 +38,16 @@ export default function Explorer({  }: ExplorerProps) {
     return ( 
         <Show when={current_file() && sheet()} fallback={<SkeletonLoading />}>
             <MenuBar />
-            <main class="p-14 flex gap-8">
+            <main class="px-8 py-14 flex gap-8">
                 <section class="h-fit flex flex-col rounded-xl border-primary border-x-3 border-y-[20px]">
                     <For each={project_files()}>
-                        { fileName => 
-                            <button class="px-3 py-2 cursor-pointer bg-handsontable-background text-handsontable-foreground font-handsontable text-left border-handsontable-border border-y-[1px]"
-                            onClick={() => setCurrentFile(fileName)}>
-                                {fileName}
-                            </button> 
-                        }
+                        { fileName => { 
+                            const color = () => current_file() === fileName? "bg-primary text-white border-[0px]" : "bg-handsontable-background text-handsontable-foreground border-y-[1px]"
+                            return <button class={`px-3 py-2 cursor-pointer ${color()} border-handsontable-border font-handsontable text-left`}
+                                    onClick={() => setCurrentFile(fileName)}>
+                                        {fileName}
+                                    </button>
+                        }}
                     </For>
                 </section>
                 <Show when={sheet()}>
