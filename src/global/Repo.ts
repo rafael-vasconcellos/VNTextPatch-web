@@ -14,11 +14,20 @@ export interface Sheet extends StoreItem<string[][]> {
     translatedRows: number
 }
 
+interface EventMap {
+    sheetupdate: (e: {data: Sheet}) => void
+}
 
-export class Repo {  
+export class Repo { 
     private request?: IDBOpenDBRequest
     public projectName?: string
     private _isOpen: boolean = false
+    private eventListeners: {
+    [K in keyof EventMap]: EventMap[K][];
+  } = {
+    sheetupdate: []
+  };
+    private static EventNames = ["sheetupdate"]
     constructor(projectName?: string) { 
         if (projectName) { this.projectName = projectName }
     }
@@ -132,12 +141,14 @@ export class Repo {
         const db = await this.getDb()
         const transaction = db?.transaction("sheets", "readwrite")
         const store = transaction?.objectStore("sheets")
-        store?.put({ 
+        const data = { 
             filename: fileName,
             content: sheet,
             rows: sheet.length,
             translatedRows: sheet.filter(rows => rows.filter(c=>c).length > 1).length
-        } as Sheet)
+        } as Sheet
+        store?.put(data)
+        this.eventListeners["sheetupdate"].forEach(handler => handler({ data }))
     }
 
     async getCharNames(): Promise<Record<string, string>> { 
@@ -159,6 +170,20 @@ export class Repo {
         response.onsuccess = () => resolve(response.result)
         response.onerror = () => reject(response.error)
         return promise as Promise<IDBValidKey[]>
+    }
+
+    addEventListener<K extends keyof EventMap>(eventName: keyof EventMap, handler: EventMap[K]) {
+        if (Repo.EventNames.includes(eventName)) { 
+            if (!this.eventListeners[eventName]) { this.eventListeners[eventName] = [] }
+            this.eventListeners[eventName].push(handler)
+        }
+    }
+
+    removeEventListener(eventName: keyof EventMap, handler: any) {
+        if (Repo.EventNames.includes(eventName)) {
+            const index = this.eventListeners[eventName].indexOf(handler)
+            this.eventListeners[eventName].splice(index, 1)
+        }
     }
 
 }

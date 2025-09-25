@@ -1,5 +1,6 @@
 import { createEffect } from 'solid-js';
 import Handsontable from 'handsontable';
+import { useRepoContext } from '../../pages/Explorer/context';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
 import './style.css';
@@ -20,6 +21,7 @@ interface SheetProps {
 }
 
 export default function Sheet(props: SheetProps) { 
+    const [ repo ] = useRepoContext()
     let section: HTMLElement | undefined
 
     createEffect(() => { //console.log(sheet())
@@ -30,7 +32,7 @@ export default function Sheet(props: SheetProps) {
                 //startRows: 8,
                 startCols: 5,
                 rowHeaders: false,
-                colHeaders: false,
+                colHeaders: ["Original Text", "Initial", "Machine Translation", "Better Translation", "Best Translation"],
                 height: 'auto',
                 licenseKey: 'non-commercial-and-evaluation',
                 afterChange(change, source) {
@@ -39,7 +41,21 @@ export default function Sheet(props: SheetProps) {
                 },
                 autoWrapRow: true,
                 autoWrapCol: true,
-                data: props.sheet!.content
+                data: props.sheet!.content,
+                columns: [
+                    {
+                        data: 0,
+                        readOnly: true
+                    }, {
+                        data: 1,
+                    }, {
+                        data: 2,
+                    }, {
+                        data: 3,
+                    }, {
+                        data: 4,
+                    }, 
+                ]
             });
             
             hot.addHook('afterChange', (changes) => { 
@@ -48,6 +64,11 @@ export default function Sheet(props: SheetProps) {
                     if (col===0 && !value) { hot.alter('remove_row', row) }
                 })
                 props.onChange && props.onChange(hot.getData())
+            })
+
+            repo().addEventListener<"sheetupdate">("sheetupdate", evt => {
+                //hot.updateData(evt.data.content)
+                console.log("dada")
             })
         }
     })
