@@ -28,7 +28,7 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
             ],
         })
 
-        files.forEach(async handle => { 
+        files?.forEach(async handle => { 
             const sheetNames = await repo().getSheetNames()
             const fileNameWithExt = handle.name
             const fileName = fileNameWithExt.replace('.csv', '')
@@ -41,17 +41,14 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
             let updated = false
             const prevSheet = (await repo().getSheet(fileName)).content
             content.forEach(row => { 
-                row[0] = row[0]?.replaceAll('"', "")
+                row[0] = row[0]?.replaceAll('"', "").replaceAll(/\r?\n/g, "")
                 const [ original_text, ...translations ] = row ?? []
-                const prevIndex = prevSheet.findIndex(prevRow => prevRow[0] === original_text)
+                const prevIndex = prevSheet.findIndex(prevRow => prevRow[0].replaceAll(/\r?\n/g, "") === original_text)
                 if (prevIndex >= 0) {
                     const prevRow = prevSheet[prevIndex]
                     const mergedRow = [
                         original_text,
-                        ...translations.map((cell, i) => {
-                            if (cell === '""') cell = ""
-                            return cell || (i<prevRow.length? prevRow[i] : '')
-                        })
+                        ...translations.map((cell, i) => cell || (i<prevRow.length? prevRow[i] : ''))
                     ]
                     prevSheet[prevIndex] = mergedRow
                     updated = true
