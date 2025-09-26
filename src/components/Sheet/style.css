@@ -19,10 +19,6 @@
     backdrop-filter: blur(6px) saturate(120%);
 }
 
-.ht-root-wrapper colgroup > col:not(:first-child) {
-    width: 215px !important;
-}
-
 /* .ht-root-wrapper .wtHolder, .ht-root-wrapper .ht-wrapper, .ht-root-wrapper .ht_master {
     overflow: visible !important;
 }

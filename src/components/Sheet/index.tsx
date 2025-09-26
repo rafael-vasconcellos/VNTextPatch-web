@@ -30,11 +30,10 @@ export default function Sheet(props: SheetProps) {
             section.innerHTML = ''
             const hot = new Handsontable(section, { 
                 themeName: 'ht-theme-main-dark',
-                //startRows: 8,
+                startRows: 8,
                 startCols: 5,
                 rowHeaders: true,
                 colHeaders: ["Original Text", "Initial", "Machine Translation", "Better Translation", "Best Translation"],
-                height: 500,
                 licenseKey: 'non-commercial-and-evaluation',
                 afterChange(change, source) {
                     if (source === 'loadData' || !change) { return }
@@ -58,7 +57,9 @@ export default function Sheet(props: SheetProps) {
                     }, 
                 ],
                 renderAllColumns: false,
-                readOnly: props.sheetOptions?.readOnly===true
+                readOnly: props.sheetOptions?.readOnly===true,
+                stretchH: "none",
+                colWidths: 215
             });
 
             hot.addHook('afterChange', (changes, _) => { 
