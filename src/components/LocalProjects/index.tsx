@@ -25,9 +25,9 @@ export default function LocalProjects({ onClick }: LocalProjectsProps) {
 
 
     return ( 
-        <Show when={projects().length > 0} fallback={<SkeletonLoading class="h-44" />}>
+        <Show when={projects()} fallback={<SkeletonLoading class="h-44" />}>
             <section class="w-full flex flex-col gap-5">
-                <span class="text-xl font-bold text-zinc-500">Local saved projects</span>
+                { projects()!.length > 0 && <span class="text-xl font-bold text-zinc-500">Local saved projects</span> }
                 <For each={projects()}>
                     { projectName => 
                         <button class="p-4 text-xl border-2 border-zinc-600 rounded-lg cursor-pointer relative hover:bg-white hover:text-black hover:border-transparent" 

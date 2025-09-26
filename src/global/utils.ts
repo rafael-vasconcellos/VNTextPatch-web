@@ -5,7 +5,7 @@ import type { Sheet } from "./ProjectRepo";
 
 
 export const [ vn ] = createSignal(new VNTextPatch())
-export const [ projects, setProjects ] = createSignal<(string | undefined)[]>([])
+export const [ projects, setProjects ] = createSignal<Array<string | undefined> | null>(null)
 export const [ sheets, setSheets ] = createStore<Record<string, Sheet>>({})
 
 export function updateSheet(fileName: string, sheet: string[][]) {
