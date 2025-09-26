@@ -1,9 +1,10 @@
+import { useParams } from "@solidjs/router";
 import { createContext, createSignal, useContext, type Accessor, type Setter } from "solid-js";
 import { ProjectRepo } from "../../global/ProjectRepo";
 
 
 interface RepoContextProviderProps { 
-    projectName: string
+    projectName?: string
     children: any
 }
 
@@ -17,6 +18,8 @@ export function useRepoContext() {
 }
 
 export default function RepoContextProvider({ projectName, children }: RepoContextProviderProps) { 
+    const { project_name } = useParams()
+    projectName ||= project_name
     setContextValue(new ProjectRepo(projectName))
 
     return ( 

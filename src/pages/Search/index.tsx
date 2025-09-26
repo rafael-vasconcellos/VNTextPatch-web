@@ -1,4 +1,4 @@
-import { useParams } from "@solidjs/router";
+import { useNavigate, useParams } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
 import { ProjectRepo } from "../../global/ProjectRepo";
 import type { Sheet as ISheet } from "../../global/ProjectRepo";
@@ -8,6 +8,7 @@ import Sheet from "../../components/Sheet";
 
 export default function Search() { 
     const { project_name } = useParams()
+    const navigate = useNavigate()
     const [ results, setResults ] = createSignal<ISheet[]>([])
     const [ current_file, setCurrentFile ] = createSignal<number>(0)
     const repo = new ProjectRepo(project_name)
@@ -51,6 +52,12 @@ export default function Search() {
 
     return (
         <div class="w-screen h-screen px-16">
+            <button class="bg-primary hover:bg-primary/60 p-2 rounded-full absolute left-16 top-4 cursor-pointer" 
+            onClick={() => navigate("/" + project_name)}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                </svg>
+            </button>
             <main class="card w-full relative top-16 flex flex-col items-center gap-4 overflow-hidden">
                 <input class="w-3/5 h-10 px-4 border-[1px] border-zinc-500 rounded-lg" type="search" placeholder="Type your query here..." ref={search} />
                 <div class="flex gap-4">

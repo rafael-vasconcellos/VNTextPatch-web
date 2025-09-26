@@ -3,7 +3,7 @@ import { ProjectRepo } from '../../global/ProjectRepo'
 import { isProjectOpen, projects, setProjectStatus, vn } from '../../global/utils'
 import './style.css'
 import RepoContextProvider from '../Explorer/context'
-import Explorer from '../Explorer'
+import ExplorerPage from '../Explorer/page'
 import UploadFiles from '../../components/UploadFiles'
 import ProjectName from '../../components/UploadFiles/ProjectName'
 import LocalProjects from '../../components/LocalProjects'
@@ -56,7 +56,7 @@ export default function App() {
             </Show>
             <Show when={isProjectOpen()}>
                 <RepoContextProvider projectName={project_name()}>
-                    <Explorer projectName={project_name()} />
+                    <ExplorerPage projectName={project_name()} />
                 </RepoContextProvider>
             </Show>
         </>
