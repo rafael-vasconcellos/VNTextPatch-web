@@ -22,18 +22,29 @@ export default function Explorer({  }: ExplorerProps) {
     const [ project_files, setProjectFiles ] = createSignal<ProjectFiles[]>([])
     const [ sheet, setSheet ] = createSignal<ISheet>()
 
-    createEffect(async() => { //console.log(repo())
-        repo()?.open()
+    async function getSheetsData() {
         const sheets = await repo()?.getSheets()
         const files: ProjectFiles[] = sheets?.map(store => ({
             name: store.filename,
-            percentTranslated: ((store.translatedRows || 0) / store.rows).toFixed(2) + "%"
+            percentTranslated: (((store.translatedRows || 0) / store.rows) * 100).toFixed(2) + "%"
         }))
+        return { sheets, files }
+    }
+
+    createEffect(async() => { //console.log(repo())
+        repo()?.open()
+        const { sheets, files } = await getSheetsData()
         if (files.length) { 
             setProjectFiles(files)
             setSheet(sheets[0])
             setCurrentFile(files[0].name)
         }
+
+        repo()?.addEventListener<"sheetimport">("sheetimport", async() => {
+            const { sheets, files } = await getSheetsData()
+            setProjectFiles(files)
+            setSheet(sheets.find(sheet => sheet.filename === current_file()))
+        })
     })
 
     createEffect(async() => { 

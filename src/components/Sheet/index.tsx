@@ -1,6 +1,5 @@
 import { createEffect } from 'solid-js';
 import Handsontable from 'handsontable';
-import { useRepoContext } from '../../pages/Explorer/context';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
 import './style.css';
@@ -24,7 +23,6 @@ interface SheetProps {
 }
 
 export default function Sheet(props: SheetProps) { 
-    const [ repo ] = useRepoContext()
     let section: HTMLElement | undefined
 
     createEffect(() => { //console.log(sheet())
@@ -70,12 +68,8 @@ export default function Sheet(props: SheetProps) {
                 })
                 props.onChange && props.onChange(hot.getData())
             })
-
-            repo()?.addEventListener<"sheetimport">("sheetimport", evt => { 
-                // não dispara afterChange (??)
-                if (evt.data.filename === props.sheet?.filename) { hot.updateData(evt.data.content) }
-            })
         }
+
     })
 
 
