@@ -1,10 +1,11 @@
+import { useNavigate } from '@solidjs/router'
 import type { JSX } from 'solid-js'
-import { setProjectStatus } from '../../global/utils'
 
 
 export default function New({ class: className }: JSX.ButtonHTMLAttributes<HTMLButtonElement>) { 
+    const navigate = useNavigate()
     function home() { 
-        setProjectStatus(false)
+        navigate("/")
     }
 
     return ( 

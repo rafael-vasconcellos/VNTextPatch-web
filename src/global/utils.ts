@@ -2,7 +2,6 @@ import { createSignal } from "solid-js";
 import { VNTextPatch } from "./VNTextPatch";
 
 
-export const [ isProjectOpen, setProjectStatus ] = createSignal(false)
 export const [ vn ] = createSignal(new VNTextPatch())
 export const [ projects, setProjects ] = createSignal<(string | undefined)[]>([])
 

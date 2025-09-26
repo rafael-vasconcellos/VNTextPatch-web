@@ -36,6 +36,7 @@ export class ProjectRepo extends Repo {
     }
 
     create(init?: ProjectRepoInit) { 
+        const { resolve, reject, promise } = Promise.withResolvers<void>()
         this.projectName = init?.projectName || this.projectName
         if (!this.projectName) { throw new Error('IndexedDB Repo Error: missing project name.') }
 
@@ -48,11 +49,15 @@ export class ProjectRepo extends Repo {
                 this.insertSheets(sheets_store, init!.outputFiles!)
             }
             if (init?.srcFiles?.length) { 
-                this.request!.onsuccess = () => this.insertSrcFiles(init.srcFiles as FileList)
+                this.request!.onsuccess = () => {
+                    this.insertSrcFiles(init.srcFiles as FileList)
+                    resolve()
+                }
             }
         }
-        this.request.onerror = () => { console.error(this.request!.error) }
+        this.request.onerror = () => { console.error(this.request!.error) ; reject() }
         this._isOpen = true
+        return promise
     }
 
     open() { 
