@@ -11,6 +11,9 @@ import type { Sheet } from '../../global/ProjectRepo';
 interface SheetProps { 
     sheet?: Sheet
     onChange?: (s: string[][]) => void
+    sheetOptions?: {
+        readOnly: boolean
+    }
     addHook?: (
         key: "afterChange", 
         callback: 
@@ -56,10 +59,11 @@ export default function Sheet(props: SheetProps) {
                         data: 4,
                     }, 
                 ],
-                renderAllColumns: false
+                renderAllColumns: false,
+                readOnly: props.sheetOptions?.readOnly===true
             });
-            
-            hot.addHook('afterChange', (changes) => { 
+
+            hot.addHook('afterChange', (changes, _) => { 
                 changes?.forEach(change => { 
                     const [ row, col, , value ] = change
                     if (col===0 && !value) { hot.alter('remove_row', row) }
@@ -67,7 +71,8 @@ export default function Sheet(props: SheetProps) {
                 props.onChange && props.onChange(hot.getData())
             })
 
-            repo().addEventListener<"sheetimport">("sheetimport", evt => {
+            repo()?.addEventListener<"sheetimport">("sheetimport", evt => { 
+                // não dispara afterChange (??)
                 if (evt.data.filename === props.sheet?.filename) { hot.updateData(evt.data.content) }
             })
         }
