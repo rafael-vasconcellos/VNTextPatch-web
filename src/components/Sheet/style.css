@@ -4,18 +4,6 @@
     --ht-border-color: #313132;*/
 }
 
-.ht-root-wrapper .wtHolder, .ht-root-wrapper .ht-wrapper, .ht-root-wrapper .ht_master {
-    overflow: visible !important;
-}
-
-.ht-root-wrapper td {
-    overflow: hidden;
-}
-
-.ht-root-wrapper colgroup > col:not(:first-child) {
-    width: 215px !important;
-}
-
 .ht-root-wrapper .wtHider {
     /* 
     display:grid;
@@ -30,3 +18,15 @@
     box-shadow: 0 10px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
     backdrop-filter: blur(6px) saturate(120%);
 }
+
+.ht-root-wrapper colgroup > col:not(:first-child) {
+    width: 215px !important;
+}
+
+/* .ht-root-wrapper .wtHolder, .ht-root-wrapper .ht-wrapper, .ht-root-wrapper .ht_master {
+    overflow: visible !important;
+}
+
+.ht-root-wrapper td {
+    overflow: hidden;
+} */
