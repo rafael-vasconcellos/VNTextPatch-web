@@ -4,26 +4,35 @@ import { useRepoContext } from "./context"
 import MenuBar from "../../components/MenuBar"
 import SkeletonLoading from "../../components/SkeletonLoading"
 import type { Sheet as ISheet } from "../../global/ProjectRepo"
+import SheetFooter from "../../components/SheetFooter"
 
 
 interface ExplorerProps { 
     projectName?: string
 }
 
+interface ProjectFiles {
+    name: string
+    percentTranslated: number | string
+}
+
 export default function Explorer({  }: ExplorerProps) { 
     const [ repo ] = useRepoContext()
     const [ current_file, setCurrentFile ] = createSignal<string>('')
-    const [ project_files, setProjectFiles ] = createSignal<string[]>([])
+    const [ project_files, setProjectFiles ] = createSignal<ProjectFiles[]>([])
     const [ sheet, setSheet ] = createSignal<ISheet>()
 
     createEffect(async() => { //console.log(repo())
         repo()?.open()
         const sheets = await repo()?.getSheets()
-        const files = sheets?.map(store => store.filename)
+        const files: ProjectFiles[] = sheets?.map(store => ({
+            name: store.filename,
+            percentTranslated: ((store.translatedRows || 0) / store.rows).toFixed(2) + "%"
+        }))
         if (files.length) { 
             setProjectFiles(files)
             setSheet(sheets[0])
-            setCurrentFile(files[0])
+            setCurrentFile(files[0].name)
         }
     })
 
@@ -41,11 +50,12 @@ export default function Explorer({  }: ExplorerProps) {
             <main class="px-8 py-14 flex gap-8">
                 <section class="h-fit flex flex-col rounded-xl border-primary border-x-3 border-y-[20px]">
                     <For each={project_files()}>
-                        { fileName => { 
-                            const color = () => current_file() === fileName? "bg-primary text-white border-[0px]" : "bg-handsontable-background text-handsontable-foreground border-y-[1px]"
-                            return <button class={`px-3 py-2 cursor-pointer ${color()} border-handsontable-border font-handsontable text-left`}
-                                    onClick={() => setCurrentFile(fileName)}>
-                                        {fileName}
+                        { file => { 
+                            const color = () => current_file() === file.name? "bg-primary text-white border-[0px]" : "bg-handsontable-background text-handsontable-foreground border-y-[1px]"
+                            return <button class={`px-3 py-2 cursor-pointer ${color()} border-handsontable-border font-handsontable text-left flex justify-between items-center`}
+                                    onClick={() => setCurrentFile(file.name)}>
+                                        {file.name}
+                                        <span>{file.percentTranslated}</span>
                                     </button>
                         }}
                     </For>
@@ -56,6 +66,7 @@ export default function Explorer({  }: ExplorerProps) {
                     }} />
                 </Show>
             </main>
+            <SheetFooter sheet={sheet()!} />
         </Show>
     )
 }
