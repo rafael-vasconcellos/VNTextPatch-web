@@ -60,8 +60,9 @@ export class ProjectRepo extends Repo {
         return promise
     }
 
-    open() { 
+    open() {
         if (!this.projectName) { throw new Error('IndexedDB Repo Error: missing project name.') }
+        if (this._isOpen) return
         this.request = indexedDB.open(this.projectName, 1)
         this._isOpen = true
     }
