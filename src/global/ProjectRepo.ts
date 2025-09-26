@@ -108,6 +108,7 @@ export class ProjectRepo extends Repo {
         const data = { 
             filename: fileName,
             content: sheet,
+            rows: sheet.length,
             translatedRows: sheet.filter(rows => rows.filter(c=>c).length > 1).length
         } as Sheet
         await this.updateStoreItem("sheets", data)
