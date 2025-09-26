@@ -109,20 +109,15 @@ export class ProjectRepo extends Repo {
         return this.getStoreItems("sheets")
     }
 
-    async updateSheet(fileName: string, sheet: string[][]): Promise<Sheet> { 
+    async updateSheet(sheet: Sheet): Promise<Sheet> { 
         const data = { 
-            filename: fileName,
-            content: sheet,
-            rows: sheet.length,
-            translatedRows: sheet.filter(rows => rows.filter(c=>c).length > 1).length
+            filename: sheet.filename,
+            content: sheet.content,
+            rows: sheet.rows ?? sheet.content.length,
+            translatedRows: sheet.translatedRows ?? sheet.content.filter(rows => rows.filter(c=>c).length > 1).length
         } as Sheet
         await this.updateStoreItem("sheets", data)
         return data
-    }
-
-    async importSheet(fileName: string, sheet: string[][]) {
-        const data = await this.updateSheet(fileName, sheet)
-        this.eventListeners["sheetimport"].forEach(handler => handler({ data }))
     }
 
     async getCharNames(): Promise<Record<string, string>> { 

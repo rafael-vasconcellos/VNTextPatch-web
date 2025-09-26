@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
 import { ProjectRepo } from "../../global/ProjectRepo";
+import { updateSheet } from "../../global/utils";
 import type { Sheet as ISheet } from "../../global/ProjectRepo";
 import Sheet from "../../components/Sheet";
 
@@ -31,7 +32,7 @@ export default function Search() {
                 sheet.content = sheet.content.map(row => {
                     return row.map(cell => cell.replace(value, value2))
                 })
-                return repo.updateSheet(sheet.filename, sheet.content)
+                return updateSheet(sheet.filename, sheet.content)
             }
 
             sheet.content = sheet.content.filter(row => { 

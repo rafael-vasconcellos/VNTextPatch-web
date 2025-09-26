@@ -1,4 +1,5 @@
 import { createEffect } from 'solid-js';
+import { unwrap } from "solid-js/store";
 import Handsontable from 'handsontable';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
@@ -9,7 +10,7 @@ import type { Sheet } from '../../global/ProjectRepo';
 
 interface SheetProps { 
     sheet?: Sheet
-    onChange?: (s: string[][]) => void
+    onChange?: (s: Partial<Sheet>) => void
     sheetOptions?: {
         readOnly: boolean
     }
@@ -41,7 +42,7 @@ export default function Sheet(props: SheetProps) {
                 },
                 autoWrapRow: true,
                 autoWrapCol: true,
-                data: props.sheet!.content,
+                data: unwrap(props.sheet!.content),
                 columns: [
                     {
                         data: 0,
@@ -67,7 +68,10 @@ export default function Sheet(props: SheetProps) {
                     const [ row, col, , value ] = change
                     if (col===0 && !value) { hot.alter('remove_row', row) }
                 })
-                props.onChange && props.onChange(hot.getData())
+                props.onChange && props.sheet && props.onChange({
+                    filename: props.sheet.filename,
+                    content: hot.getData()
+                })
             })
         }
 
