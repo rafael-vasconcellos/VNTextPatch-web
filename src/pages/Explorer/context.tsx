@@ -1,5 +1,5 @@
 import { createContext, createSignal, useContext, type Accessor, type Setter } from "solid-js";
-import { ProjectRepo } from "../../global/Repo";
+import { ProjectRepo } from "../../global/ProjectRepo";
 
 
 interface RepoContextProviderProps { 

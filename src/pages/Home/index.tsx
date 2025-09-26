@@ -1,5 +1,5 @@
 import { createEffect, createSignal, Show } from 'solid-js'
-import { ProjectRepo } from '../../global/Repo'
+import { ProjectRepo } from '../../global/ProjectRepo'
 import { isProjectOpen, projects, setProjectStatus, vn } from '../../global/utils'
 import './style.css'
 import RepoContextProvider from '../Explorer/context'

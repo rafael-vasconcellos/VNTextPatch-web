@@ -3,7 +3,7 @@ import Sheet from "../../components/Sheet"
 import { useRepoContext } from "./context"
 import MenuBar from "../../components/MenuBar"
 import SkeletonLoading from "../../components/SkeletonLoading"
-import type { Sheet as ISheet } from "../../global/Repo"
+import type { Sheet as ISheet } from "../../global/ProjectRepo"
 
 
 interface ExplorerProps { 

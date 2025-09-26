@@ -4,7 +4,7 @@ import { useRepoContext } from '../../pages/Explorer/context';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
 import './style.css';
-import type { Sheet } from '../../global/Repo';
+import type { Sheet } from '../../global/ProjectRepo';
 //import 'handsontable/styles/ht-theme-horizon.css';
 
 
