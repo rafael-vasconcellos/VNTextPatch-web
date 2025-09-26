@@ -6,7 +6,7 @@ export default function ProjectName({ onSubmit }: Props) {
     let input: HTMLInputElement | undefined
 
     return ( 
-        <div class="w-screen h-screen absolute top-0 bg-black/5 flex justify-center items-center">
+        <div class="w-screen h-screen top-0 bg-white/2 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.3)] fixed flex justify-center items-center">
             <div class="bg-black w-72 px-5 py-2 rounded-xl flex flex-col gap-6">
                 <span class="font-bold">Project name</span>
                 <input class="w-full p-2 border-zinc-800 border-2 rounded-lg"
