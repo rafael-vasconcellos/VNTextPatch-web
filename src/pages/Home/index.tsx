@@ -46,7 +46,7 @@ export default function App() {
             </section>
             <Show when={src_files()?.length && !project_name()}>
                 <ProjectName onSubmit={(name: string) => { 
-                    if (projects().includes(name)) { return alert('A project with this name already exists!') }
+                    if (projects()?.includes(name)) { return alert('A project with this name already exists!') }
                     setProjectName(name)
                 }} />
             </Show>

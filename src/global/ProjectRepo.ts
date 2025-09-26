@@ -13,7 +13,7 @@ export interface StoreItem<T= any> {
     content: T
 }
 
-export interface Sheet extends StoreItem<string[][]> {
+export interface Sheet extends StoreItem<(string | null)[][]> {
     rows: number
     translatedRows: number
 }
@@ -123,9 +123,9 @@ export class ProjectRepo extends Repo {
 
     async getCharNames(): Promise<Record<string, string>> { 
         const char_names: Record<string, string> = {}
-        const sheet: string[][] | undefined = await this.getSheet("char_names").then(store => store?.content)
+        const sheet: (string | null)[][] | undefined = await this.getSheet("char_names").then(store => store?.content)
         sheet?.forEach(row => { 
-            char_names[row[0]] = row.at(-1)!
+            char_names[row[0]!] = row.at(-1)!
         })
         return char_names
     }

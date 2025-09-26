@@ -44,7 +44,7 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
             content.forEach(row => { 
                 row[0] = row[0]?.replaceAll('"', "").replaceAll(/\r?\n/g, "")
                 const [ original_text, ...translations ] = row ?? []
-                const prevIndex = prevSheet.findIndex(prevRow => prevRow[0].replaceAll(/\r?\n/g, "") === original_text)
+                const prevIndex = prevSheet.findIndex(prevRow => prevRow[0]?.replaceAll(/\r?\n/g, "") === original_text)
                 if (prevIndex >= 0) {
                     const prevRow = prevSheet[prevIndex]
                     const mergedRow = [
