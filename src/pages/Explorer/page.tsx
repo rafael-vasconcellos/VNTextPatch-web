@@ -53,7 +53,7 @@ export default function ExplorerPage({  }: ExplorerProps) {
 
 
     return ( 
-        <Show when={current_file() && sheet()} fallback={<SkeletonLoading />}>
+        <Show when={current_file() && sheet()} fallback={<SkeletonLoading class="h-full absolute top-0" />}>
             <MenuBar />
             <main class="px-8 py-14 flex gap-8">
                 <section class="h-fit flex flex-col rounded-xl border-primary border-x-3 border-y-[20px]">
