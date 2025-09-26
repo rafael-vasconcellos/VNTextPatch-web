@@ -7,6 +7,8 @@ import Explorer from '../Explorer'
 import UploadFiles from '../../components/UploadFiles'
 import ProjectName from '../../components/UploadFiles/ProjectName'
 import LocalProjects from '../../components/LocalProjects'
+import Contribute from '../../components/Contribute'
+import GithubStats from '../../components/GithubStats'
 
 
 export default function App() { 
@@ -29,9 +31,10 @@ export default function App() {
 
     return ( 
         <>
+            <GithubStats />
             <Show when={!isProjectOpen()}>
-                <section class='w-screen h-screen flex flex-col justify-center items-center gap-8'>
-                    <div>
+                <section class='w-screen py-20 flex flex-col items-center gap-28'>
+                    <div class='mb-28'>
                         <Show when={!src_files()?.length && !isProjectOpen()}>
                             <UploadFiles ref={fileInput} onChange={() => { 
                                 if (fileInput?.files?.length) { setSrcFiles(fileInput.files) }
@@ -42,6 +45,7 @@ export default function App() {
                             setProjectStatus(true)
                         } }/>
                     </div>
+                    <Contribute />
                 </section>
             </Show>
             <Show when={src_files()?.length && !project_name()}>

@@ -16,6 +16,12 @@
 
 :root {
     --bg:#0f1724;
+    --card:#0b1220;
+    --accent1:#7c3aed; /* roxo */
+    --accent2:#06b6d4; /* ciano */
+    --muted: #9aa4b2;
+    --glass: rgba(255,255,255,0.03);
+    --glass-2: rgba(255,255,255,0.02);
 }
 
 body {
@@ -32,6 +38,7 @@ body {
     overflow: scroll;
     width: 100vw;
     height: fit-content;
+    overflow-x: hidden;
 }
 
 .card {
@@ -41,4 +48,45 @@ body {
     border: 1px solid rgba(255,255,255,0.04);
     box-shadow: 0 10px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
     backdrop-filter: blur(6px) saturate(120%);
+}
+
+.cta{
+    width: 223px;
+    display:inline-flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    padding:14px 20px;
+    border-radius:12px;
+    background: linear-gradient(90deg, rgba(124,58,237,0.95), rgba(6,182,212,0.92));
+    color:white;
+    font-weight:600;
+    box-shadow: 0 8px 30px rgba(6,20,50,0.45), 0 0 0 6px rgba(124,58,237,0.06);
+    transform:translateY(0);
+    transition: transform .14s cubic-bezier(.2,.9,.2,1), box-shadow .14s ease, filter .14s ease;
+}
+.cta:focus,
+.cta:hover{
+    opacity: .6;
+}
+
+.cta svg{width:20px;height:20px;flex-shrink:0}
+
+@keyframes ring{
+    0%{transform:scale(.98);opacity:1}
+    70%{transform:scale(1.06);opacity:0}
+    100%{transform:scale(1.12);opacity:0}
+}
+
+ul {
+    list-style-type: disc;
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    padding-inline-start: 40px;
+    unicode-bidi: isolate;
+}
+
+ul li {
+    display: list-item;
 }

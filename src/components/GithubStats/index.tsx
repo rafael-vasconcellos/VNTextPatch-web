@@ -1,5 +1,4 @@
 import { createEffect, createSignal, Show } from "solid-js"
-import "./style.css"
 
 
 
