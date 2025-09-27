@@ -110,6 +110,15 @@ export class ProjectRepo extends Repo {
         return this.getStoreItems("sheets")
     }
 
+    async getSheetsMap() { 
+        const output: Record<string, Sheet> = {}
+        const sheets = await this.getSheets()
+        sheets?.forEach(store => {
+            output[store.filename] = store
+        })
+        return output
+    }
+
     async updateSheet(sheet: Sheet): Promise<Sheet> { 
         const data = { 
             filename: sheet.filename,

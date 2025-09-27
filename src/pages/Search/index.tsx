@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
 import { ProjectRepo } from "../../global/ProjectRepo";
-import { updateSheet } from "../../global/utils";
+import { setSheets, updateSheet } from "../../global/utils";
 import type { Sheet as ISheet } from "../../global/ProjectRepo";
 import Sheet from "../../components/Sheet";
 
@@ -10,45 +10,52 @@ import Sheet from "../../components/Sheet";
 export default function Search() { 
     const { project_name } = useParams()
     const navigate = useNavigate()
-    const [ results, setResults ] = createSignal<ISheet[]>([])
+    const [ results, setResults ] = createSignal<ISheet[] | null>(null)
     const [ current_file, setCurrentFile ] = createSignal<number>(0)
+    const [ displayReplace, setReplaceDisplay ] = createSignal(false)
+    const arrowStyle = () => displayReplace()? "rotate-90" : ""
+    const replaceStyle = () => displayReplace()? "" : "hidden"
     const repo = new ProjectRepo(project_name)
-    let search: HTMLInputElement | undefined
     let includeOriginal = false
     let useRegexp = false
-    let doReplace = false
 
     async function onSearch(e: Event & {
         currentTarget: HTMLInputElement;
         target: HTMLInputElement;
     }) { 
-        const value = e.currentTarget.value?.toLowerCase() ?? ""
-        const value2 = ""
+        const value = (document.getElementById("searchInput") as HTMLInputElement)?.value?.toLowerCase() ?? ""
+        const value2 = (document.getElementById("replaceInput") as HTMLInputElement)?.value?.toLowerCase() ?? ""
         if (!value) return
         const sheets = await repo.getSheets()
         const r: ISheet[] = []
+        const doReplace = e.target.id === "replaceInput"
         sheets.forEach(sheet => {
-            if (doReplace) {
+            let value_tmp = value
+            if (doReplace) { 
                 sheet.content = sheet.content.map(row => {
-                    return row.map(cell => cell.replace(value, value2))
+                    return row.map(cell => cell?.toLowerCase()?.replaceAll(value, value2) ?? cell)
                 })
-                return updateSheet(sheet.filename, sheet.content)
+                updateSheet(sheet.filename, sheet.content)
+                value_tmp = value2
             }
 
             sheet.content = sheet.content.filter(row => { 
                 if (!includeOriginal) row = row.slice(1)
-                if (useRegexp) return row.some(cell => new RegExp(value).test(cell))
-                return row.some(cell => cell.toLowerCase().includes(value))
+                if (useRegexp) return row.some(cell => new RegExp(value_tmp).test(cell!))
+                return row.some(cell => cell?.toLowerCase().includes(value_tmp))
             })
             if (sheet.content.length > 0) r.push(sheet)
         })
+
         setResults(r)
         //console.log(r)
     }
 
-    createEffect(() => {
+    createEffect(async() => {
         repo.open()
-        search?.addEventListener('search', onSearch as any)
+        setSheets(await repo.getSheetsMap())
+        document.getElementById("searchInput")?.addEventListener('search', onSearch as any)
+        document.getElementById("replaceInput")?.addEventListener('search', onSearch as any)
     })
 
     return (
@@ -60,7 +67,18 @@ export default function Search() {
                 </svg>
             </button>
             <main class="card w-full relative top-16 flex flex-col items-center gap-4 overflow-hidden">
-                <input class="w-3/5 h-10 px-4 border-[1px] border-zinc-500 rounded-lg" type="search" placeholder="Type your query here..." ref={search} />
+                <div class="w-3/5 h-10 flex gap-4">
+                    <button class={`cursor-pointer ${arrowStyle()}`} onClick={() => setReplaceDisplay(prev => !prev)}>
+                        <svg class="size-6 text-zinc-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </button>
+                    <input id="searchInput" class="w-full h-full px-4 border-[1px] border-zinc-500 rounded-lg" type="search" placeholder="Type your query here..." />
+                </div>
+
+                <div class={`w-3/5 h-10 pl-10 ${replaceStyle()}`}>
+                    <input id="replaceInput" class="w-full h-full px-4 border-[1px] border-zinc-500 rounded-lg" type="search" placeholder="Type your query here..." />
+                </div>
                 <div class="flex gap-4">
                     <div class="flex gap-2">
                         <label for="includeOriginal">Include original text</label>
@@ -72,19 +90,21 @@ export default function Search() {
                     </div>
                 </div>
                 <section class="w-full flex gap-4">
-                    <Show when={results().length > 0}>
-                        <section class="h-fit flex flex-col rounded-xl border-primary border-x-3 border-y-[20px]">
-                            { results().map((sheet, i) => { 
-                                const color = () => current_file() === i? "bg-primary text-white border-[0px]" : "bg-handsontable-background text-handsontable-foreground border-y-[1px]"
-                                return <button class={`px-3 py-2 cursor-pointer ${color()} border-handsontable-border font-handsontable text-left flex justify-between items-center`}
-                                        onClick={() => setCurrentFile(i)}>
-                                            {sheet.filename}
-                                        </button>
-                            } ) }
-                        </section>
+                    <Show when={results()}>
+                        <Show when={results()?.length} fallback={<p class="w-full py-4 text-zinc-500 text-center">No results</p>}>
+                            <section class="h-fit flex flex-col rounded-xl border-primary border-x-3 border-y-[20px]">
+                                { results()?.map((sheet, i) => { 
+                                    const color = () => current_file() === i? "bg-primary text-white border-[0px]" : "bg-handsontable-background text-handsontable-foreground border-y-[1px]"
+                                    return <button class={`px-3 py-2 cursor-pointer ${color()} border-handsontable-border font-handsontable text-left flex justify-between items-center`}
+                                            onClick={() => setCurrentFile(i)}>
+                                                {sheet.filename}
+                                            </button>
+                                } ) }
+                            </section>
+                        </Show>
                     </Show>
-                    <Show when={results()[current_file()]}>
-                        <Sheet sheet={results()[current_file()]} sheetOptions={{ readOnly: true }} />
+                    <Show when={results()?.[current_file()]}>
+                        <Sheet sheet={results()?.[current_file()]} sheetOptions={{ readOnly: true }} />
                     </Show>
                 </section>
             </main>

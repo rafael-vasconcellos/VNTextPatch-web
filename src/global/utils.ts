@@ -9,8 +9,10 @@ export const [ projects, setProjects ] = createSignal<Array<string | undefined> 
 export const [ sheets, setSheets ] = createStore<Record<string, Sheet>>({})
 
 export function updateSheet(fileName: string, sheet: (string | null)[][]) {
-    setSheets(fileName, "content", sheet)
-    setSheets(fileName, "translatedRows", sheet.filter(rows => rows.filter(c=>c).length > 1).length)
+    if (sheets[fileName]) {
+        setSheets(fileName, "content", sheet)
+        setSheets(fileName, "translatedRows", sheet.filter(rows => rows.filter(c=>c).length > 1).length)
+    }
 }
 
 export async function* downloadObjFiles(files: Record<string, any>) { 
