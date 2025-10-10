@@ -1,7 +1,7 @@
 import { useNavigate } from "@solidjs/router"
 import { Show } from "solid-js"
 import type { JSX } from "solid-js"
-import { useRepoContext } from "../../pages/Explorer/context"
+import { useRepoContext } from "../../pages/context/repo"
 
 
 export default function Search({ class: className }: JSX.ButtonHTMLAttributes<HTMLButtonElement>) { 

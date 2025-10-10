@@ -1,5 +1,7 @@
 import { useNavigate, useParams } from "@solidjs/router"
+import { createEffect } from "solid-js"
 import { TranslationConfig } from "../../global/Translator/config"
+import RepoContextProvider, { useRepoContext } from "../context/repo"
 import TranslationColumns from "./TranslationColumns"
 import OptionToggle from "./OptionToggle"
 
@@ -7,15 +9,20 @@ import OptionToggle from "./OptionToggle"
 
 export default function TranslatePage() {
     return (
-        <main class="p-16 min-h-screen">
-            <TranslationSettingsWidget />
-        </main>
+        <RepoContextProvider>
+            <main class="p-16 min-h-screen">
+                <TranslationSettingsWidget />
+            </main>
+        </RepoContextProvider>
     )
 }
 
 function TranslationSettingsWidget() {
     const navigate = useNavigate()
     const { project_name } = useParams()
+    const [ repo ] = useRepoContext()
+
+    createEffect(() => console.log(repo()))
 
     return (
         <section class="card w-full flex flex-col gap-5">

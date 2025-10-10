@@ -1,4 +1,4 @@
-import RepoContextProvider from "./context";
+import RepoContextProvider from "../context/repo";
 import ExplorerPage from "./page";
 
 
