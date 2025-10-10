@@ -1,16 +1,25 @@
 import { useNavigate, useParams } from "@solidjs/router"
-import { createEffect } from "solid-js"
+import { createEffect, createSignal } from "solid-js"
 import { TranslationConfig } from "../../global/Translator/config"
 import RepoContextProvider, { useRepoContext } from "../context/repo"
 import TranslationColumns from "./TranslationColumns"
 import OptionToggle from "./OptionToggle"
+import "./style.css"
 
 
+
+interface SheetStatus {
+    sheetName: string
+    active: boolean
+}
+
+const [ sheetStatus, setSheetStatus ] = createSignal<SheetStatus[]>([])
 
 export default function TranslatePage() {
     return (
         <RepoContextProvider>
-            <main class="p-16 min-h-screen">
+            <main class="card h-full flex">
+                <SheetSelector />
                 <TranslationSettingsWidget />
             </main>
         </RepoContextProvider>
@@ -22,10 +31,9 @@ function TranslationSettingsWidget() {
     const { project_name } = useParams()
     const [ repo ] = useRepoContext()
 
-    createEffect(() => console.log(repo()))
 
     return (
-        <section class="card w-full flex flex-col gap-5">
+        <section class="w-full px-16 flex flex-col gap-5">
             <div>
                 <label for="translator-name">Translator: </label>
                 <select class="m-1 p-1 border-[1px] border-zinc-500 rounded-lg" id="translator-name"
@@ -64,3 +72,33 @@ function TranslationSettingsWidget() {
     )
 }
 
+
+function SheetSelector() {
+    const [ repo ] = useRepoContext()
+
+    createEffect(async() => {
+        if (!repo().isOpen) { repo().open() }
+        const sheets = await repo().getSheetNames().then(sheetNames => 
+            sheetNames.map(sheetName => ({
+                sheetName: sheetName as string,
+                active: false
+            }))
+        )
+        setSheetStatus(sheets)
+    })
+
+
+    return (
+        <section class="h-full w-44 overflow-y-scroll">
+            {sheetStatus().map(sheet => 
+                <div class="w-full flex justify-between">
+                    <input type="checkbox" id={`${sheet.sheetName}-check`}
+                    onChange={e => sheet.active = e.currentTarget.checked} />
+                    <label for={`${sheet.sheetName}-check`} class={`select-none px-3 py-2 cursor-pointer border-handsontable-border font-handsontable text-left flex justify-between items-center`}>
+                        {sheet.sheetName}
+                    </label>
+                </div>
+            )}
+        </section>
+    )
+}

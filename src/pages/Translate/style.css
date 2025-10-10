@@ -1,0 +1,13 @@
+#root {
+    height: 100vh;
+    padding: 5%;
+}
+
+main .overflow-y-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+main .overflow-y-scroll::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
