@@ -14,46 +14,53 @@ export interface TranslatorConstructor {
 
 export class TranslationConfig { 
     public static get ignoreTranslated(): boolean {
-        return Boolean(sessionStorage.getItem("ignoreTranslated")) ?? true
+        const strValue = sessionStorage.getItem("ignoreTranslated")
+        return strValue? Boolean(strValue) : true
     }
 
     public static get overrideCells(): boolean {
-        return Boolean(sessionStorage.getItem("overrideCells")) ?? true
+        const strValue = sessionStorage.getItem("overrideCells")
+        return strValue? Boolean(strValue) : false
     }
 
     public static get saveOnEachBatch(): boolean {
-        return Boolean(sessionStorage.getItem("saveOnEachBatch")) ?? true
+        const strValue = sessionStorage.getItem("saveOnEachBatch")
+        return strValue? Boolean(strValue) : true
     }
 
     public static get targetColumn(): number {
-        return Number(sessionStorage.getItem("targetColumn")) ?? 1
+        const strValue = sessionStorage.getItem("targetColumn")
+        const n = Number(strValue)
+        return Number.isNaN(n) || !strValue? 1 : n
     }
 
     public static get srcColumn(): number {
-        return Number(sessionStorage.getItem("srcColumn")) ?? 1
+        const strValue = sessionStorage.getItem("srcColumn")
+        const n = Number(strValue)
+        return Number.isNaN(n)? 0 : n
     }
 
 
 
 
-    public static setIgnoreTranslated(newValue: boolean) {
-        sessionStorage.setItem("ignoreTranslated", String(newValue))
+    public static setIgnoreTranslated(newValue: string) {
+        sessionStorage.setItem("ignoreTranslated", newValue)
     }
 
-    public static setOverrideCells(newValue: boolean) {
-        sessionStorage.setItem("overrideCells", String(newValue))
+    public static setOverrideCells(newValue: string) {
+        sessionStorage.setItem("overrideCells", newValue)
     }
 
-    public static setSaveOnEachBatch(newValue: boolean) {
-        sessionStorage.setItem("saveOnEachBatch", String(newValue))
+    public static setSaveOnEachBatch(newValue: string) {
+        sessionStorage.setItem("saveOnEachBatch", newValue)
     }
 
-    public static setTargetColumn(newValue: number) {
-        sessionStorage.setItem("targetColumn", String(newValue))
+    public static setTargetColumn(newValue: string) {
+        sessionStorage.setItem("targetColumn", newValue)
     }
 
-    public static setSrcColumn(newValue: number) {
-        sessionStorage.setItem("srcColumn", String(newValue))
+    public static setSrcColumn(newValue: string) {
+        sessionStorage.setItem("srcColumn", newValue)
     }
 
     public static setTranslatorName(newValue: string) {
