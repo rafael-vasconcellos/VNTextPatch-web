@@ -24,7 +24,8 @@ export class Translator {
         for (const sheetName of this.sheetNames) {
             const sheet = await this.repo.getSheet(sheetName)
             this.translateSheet(sheet)
-            updateSheet(sheet.filename, sheet.content)
+                .then(() => updateSheet(sheet.filename, sheet.content))
+                .catch(e => console.error(e))
         }
     }
 

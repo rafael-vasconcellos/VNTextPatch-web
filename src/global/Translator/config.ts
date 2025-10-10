@@ -1,6 +1,10 @@
-export interface TranslatorEngine {
-    translate(texts: (string | null)[]): Promise<string[]>
+export interface TranslatorEngineInit {
     batchSize: number
+    targetLanguage: string
+}
+
+export interface TranslatorEngine extends TranslatorEngineInit {
+    translate(texts: (string | null)[]): Promise<string[]>
 }
 
 export class TranslationConfig { 
