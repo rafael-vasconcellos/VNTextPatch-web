@@ -7,6 +7,11 @@ export interface TranslatorEngine extends TranslatorEngineInit {
     translate(texts: (string | null)[]): Promise<string[]>
 }
 
+export interface TranslatorConstructor {
+    new(init: TranslatorEngineInit): TranslatorEngine
+    Build(init: TranslatorEngineInit): TranslatorEngine
+}
+
 export class TranslationConfig { 
     public static get ignoreTranslated(): boolean {
         return Boolean(sessionStorage.getItem("ignoreTranslated")) ?? true

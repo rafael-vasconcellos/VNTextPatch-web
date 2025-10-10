@@ -1,13 +1,17 @@
-import type { TranslatorEngine, TranslatorEngineInit } from "../global/Translator/config"
+import type { TranslatorConstructor, TranslatorEngine, TranslatorEngineInit } from "../global/Translator/config"
 
 
 
-export class DeepLX implements TranslatorEngine {
+export const DeepLX: TranslatorConstructor = class implements TranslatorEngine {
     public targetLanguage: string = "en"
     public batchSize: number = 50
     constructor(init: TranslatorEngineInit) {
         if (init.targetLanguage) this.targetLanguage = init.targetLanguage
         if (init.batchSize) this.batchSize = init.batchSize
+    }
+
+    public static Build(init: TranslatorEngineInit) {
+        return new DeepLX(init)
     }
 
     async handler(text: string): Promise<string | null> { 
