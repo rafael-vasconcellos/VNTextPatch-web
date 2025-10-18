@@ -13,7 +13,7 @@ interface TranslatorInit {
 export class Translator { 
     private readonly repo: ProjectRepo
     private readonly engine: TranslatorEngine
-    private readonly sheetNames: string[]
+    private sheetNames: string[]
     constructor(init: TranslatorInit) {
         this.engine = init.engine
         this.repo = init.repo
@@ -21,6 +21,7 @@ export class Translator {
     }
 
     async translate() {
+        if (!this.sheetNames.length) this.sheetNames = await this.repo.getSheetNames() as string[]
         for (const sheetName of this.sheetNames) {
             const sheet = await this.repo.getSheet(sheetName)
             this.translateSheet(sheet)

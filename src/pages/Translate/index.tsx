@@ -92,7 +92,7 @@ function SheetSelector() {
         <section class="h-full w-44 overflow-y-scroll">
             {sheetStatus().map(sheet => 
                 <div class="w-full flex justify-between">
-                    <input type="checkbox" id={`${sheet.sheetName}-check`}
+                    <input type="checkbox" id={`${sheet.sheetName}-check`} checked={true}
                     onChange={e => sheet.active = e.currentTarget.checked} />
                     <label for={`${sheet.sheetName}-check`} class={`select-none px-3 py-2 cursor-pointer border-handsontable-border font-handsontable text-left flex justify-between items-center`}>
                         {sheet.sheetName}
