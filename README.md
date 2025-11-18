@@ -16,3 +16,4 @@ For use it, you'll have to extract the source files using a tool like [GARbro](h
 ## todo
 
 - translate
+- text box preview with speaker name
