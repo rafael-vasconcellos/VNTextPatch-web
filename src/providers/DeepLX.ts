@@ -27,6 +27,10 @@ export const DeepLX: TranslatorConstructor = class implements TranslatorEngine {
             return null
         })
         .then(response => response?.data)
+        .catch(err => {
+            console.error(err)
+            return null
+        })
     }
 
     async translate(texts: string[]) {

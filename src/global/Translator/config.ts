@@ -12,6 +12,9 @@ export interface TranslatorConstructor {
     Build(init: TranslatorEngineInit): TranslatorEngine
 }
 
+
+
+
 export class TranslationConfig { 
     public static get ignoreTranslated(): boolean {
         const strValue = sessionStorage.getItem("ignoreTranslated")

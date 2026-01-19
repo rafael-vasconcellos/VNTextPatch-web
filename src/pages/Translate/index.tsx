@@ -1,6 +1,9 @@
 import { useNavigate, useParams } from "@solidjs/router"
-import { createEffect, createSignal } from "solid-js"
+import { createEffect, createSignal, Show } from "solid-js"
 import { TranslationConfig } from "../../global/Translator/config"
+import { Translator } from "../../global/Translator"
+import { createLog } from "../../global/log"
+import { getTranslator } from "../../providers"
 import RepoContextProvider, { useRepoContext } from "../context/repo"
 import TranslationColumns from "./TranslationColumns"
 import OptionToggle from "./OptionToggle"
@@ -14,11 +17,19 @@ interface SheetStatus {
 }
 
 const [ sheetStatus, setSheetStatus ] = createSignal<SheetStatus[]>([])
+const [ status, setStatus ] = createSignal(false)
+const translator = new Translator()
+const Log = createLog()
 
 export default function TranslatePage() {
     return (
         <RepoContextProvider>
             <main class="card h-full flex">
+                <Show when={status()}>
+                    <Log.Component>
+                        <button onclick={translator.abort}>Abort</button>
+                    </Log.Component>
+                </Show>
                 <SheetSelector />
                 <TranslationSettingsWidget />
             </main>
@@ -30,6 +41,23 @@ function TranslationSettingsWidget() {
     const navigate = useNavigate()
     const { project_name } = useParams()
     const [ repo ] = useRepoContext()
+
+    async function translateProject() {
+        if (status()) return
+        setStatus(true)
+        const sheetNames = sheetStatus().filter(sheet => sheet.active).map(sheet => sheet.sheetName)
+        const engine = getTranslator(TranslationConfig.translatorName).Build({
+            batchSize: 25,
+            targetLanguage: "en"
+        })
+        translator.setRepo(repo())
+        translator.setEngine(engine)
+        translator.on("batchTranslate", ({ detail: data }) => {
+            Log.Add(`Translating ${data.filename} ${data.start}/${data.end}`)
+        })
+        await translator.translate(sheetNames)
+        setStatus(false)
+    }
 
 
     return (
@@ -66,7 +94,9 @@ function TranslationSettingsWidget() {
                 <button class="px-4 py-2 bg-zinc-500 rounded-lg cursor-pointer hover:bg-zinc-500/60" onClick={() => {
                     if (project_name) navigate("/" + project_name)
                 }}>Cancel</button>
-                <button class="px-4 py-2 bg-primary rounded-lg cursor-pointer hover:bg-primary/60">Translate</button>
+                <button class="px-4 py-2 bg-primary rounded-lg cursor-pointer hover:bg-primary/60">
+                    Translate
+                </button>
             </div>
         </section>
     )
@@ -102,3 +132,5 @@ function SheetSelector() {
         </section>
     )
 }
+
+

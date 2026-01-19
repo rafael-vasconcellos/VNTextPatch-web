@@ -42,3 +42,5 @@ export function downloadFile(fileContent: string, fileName: string = 'file', fil
     document.body.appendChild(a)
     a.click()
 }
+
+

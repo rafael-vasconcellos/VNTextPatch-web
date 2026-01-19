@@ -5,59 +5,124 @@ import type { ProjectRepo, Sheet } from "../ProjectRepo";
 
 
 interface TranslatorInit {
-    engine: TranslatorEngine
-    repo: ProjectRepo
-    sheetNames: string[]
+    engine?: TranslatorEngine
+    repo?: ProjectRepo
 }
 
-export class Translator { 
-    private readonly repo: ProjectRepo
-    private readonly engine: TranslatorEngine
-    private sheetNames: string[]
-    constructor(init: TranslatorInit) {
-        this.engine = init.engine
-        this.repo = init.repo
-        this.sheetNames = init.sheetNames
+interface MyCustomEvent {
+    detail: {
+        filename: string,
+        start: number,
+        end: number
+    }
+}
+
+class TranslationAbortedException extends Error {
+    constructor() { super("Translation aborted!") }
+}
+
+class EngineNotProvidedException extends Error {
+    constructor() { super("Translator engine not provided") }
+}
+
+class RepoNotProvidedException extends Error {
+    constructor() { super("Project Repo not provided") }
+}
+
+class MyEmitter extends EventTarget {
+    private listeners: Record<string, any> = {}
+    on(eventName: string, listener: EventListenerOrEventListenerObject) {
+        if (this.listeners[eventName] === listener) return
+        else if (this.listeners[eventName]) this.removeEventListener(eventName, this.listeners[eventName])
+        this.listeners[eventName] = listener
+        this.addEventListener(eventName, listener)
     }
 
-    async translate() {
-        if (!this.sheetNames.length) this.sheetNames = await this.repo.getSheetNames() as string[]
-        for (const sheetName of this.sheetNames) {
+    dispatchCustomEvent(eventName: string, detail: Record<string, any> = {}) {
+        this.dispatchEvent(
+            new CustomEvent(eventName, { detail })
+        )
+    }
+}
+
+export class Translator {
+    private repo?: ProjectRepo
+    private engine?: TranslatorEngine
+    private abortFlag: boolean = false
+    private emitter = new MyEmitter()
+    public on(eventName: string, listener: (e: MyCustomEvent) => void) {
+        this.emitter.on(eventName, listener as any)
+    }
+    constructor(init?: TranslatorInit) {
+        this.repo = init?.repo
+        this.engine = init?.engine
+    }
+
+    abort() { this.abortFlag = true }
+    setEngine(engine: TranslatorEngine) { this.engine = engine }
+    setRepo(repo: ProjectRepo) { this.repo = repo }
+
+    async translate(sheetNames: string[]) {
+        if (!this.engine)
+            throw new EngineNotProvidedException()
+        if (!this.repo)
+            throw new RepoNotProvidedException()
+        if (!sheetNames.length) 
+            sheetNames = await this.repo.getSheetNames() as string[]
+
+        this.abortFlag = false
+        for (const sheetName of sheetNames) {
+            if (this.abortFlag) return Promise.resolve()
             const sheet = await this.repo.getSheet(sheetName)
-            this.translateSheet(sheet)
+            await this.translateSheet(sheet)
                 .then(() => updateSheet(sheet.filename, sheet.content))
-                .catch(e => console.error(e))
+                .catch(e => !(e instanceof TranslationAbortedException) && console.error(e))
         }
+
+        if (!this.abortFlag) this.emitter.dispatchCustomEvent("translationDone")
+        if (this.abortFlag) this.abortFlag = false
+        return null
     }
 
     async translateSheet(sheet: Sheet) {
-        for (let startIndex=0; startIndex<sheet.content.length; startIndex+=this.engine.batchSize) {
-            const endIndex = startIndex + this.engine.batchSize
+        for (let startIndex=0; startIndex<sheet.content.length; startIndex+=this.engine!.batchSize) {
+            if (this.abortFlag) throw new TranslationAbortedException()
+            const endIndex = Math.min(startIndex + this.engine!.batchSize, sheet.content.length)
             const slice: {
                 index: number
                 row: (string | null)[]
             }[] = []
-            for (let j=startIndex; j<Math.min(endIndex, sheet.content.length); j++) {
-                if (!sheet.content[j]) break
-                if (sheet.content[j][TranslationConfig.targetColumn] && TranslationConfig.ignoreTranslated) 
-                    continue
+
+            for (let j=startIndex; j<endIndex; j++) {
+                const isTranslated = sheet.content[j].some((cell, i) => (
+                    cell && i>0
+                ))
+                if (isTranslated && TranslationConfig.ignoreTranslated) continue
                 slice.push({
                     index: j,
                     row: sheet.content[j]
                 })
             }
 
-
             if (slice.length === 0) continue
+            this.emitter.dispatchCustomEvent("batchTranslate", {
+                filename: sheet.filename,
+                start: startIndex+1,
+                end: endIndex+1
+            })
+
             const batch = slice.map(item => item.row[TranslationConfig.srcColumn])
-            const translation = await this.engine.translate(batch)
+            const translation = await this.engine!.translate(batch)
             translation.forEach((line, i) => {
                 if (slice[i].row[TranslationConfig.targetColumn] && !TranslationConfig.overrideCells) return
                 slice[i].row[TranslationConfig.targetColumn] = line
                 sheet.content[slice[i].index] = slice[i].row
             })
 
-            if (TranslationConfig.saveOnEachBatch) { this.repo.updateSheet(sheet) }
+            if (TranslationConfig.saveOnEachBatch) { 
+                if (!this.repo) throw new RepoNotProvidedException()
+                this.repo.updateSheet(sheet) 
+            }
         }
     }
 
