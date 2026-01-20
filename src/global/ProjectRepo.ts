@@ -16,6 +16,7 @@ export interface StoreItem<T= any> {
 export interface Sheet extends StoreItem<(string | null)[][]> {
     rows: number
     translatedRows: number
+    originalIndexes?: number[]
 }
 
 interface EventMap { 

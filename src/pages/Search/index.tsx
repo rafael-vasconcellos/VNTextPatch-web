@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
+import { unwrap } from "solid-js/store";
 import { ProjectRepo } from "../../global/ProjectRepo";
-import { setSheets, updateSheet } from "../../global/utils";
+import { setSheets, sheets as sheetsStore, updateSheet } from "../../global/utils";
 import type { Sheet as ISheet } from "../../global/ProjectRepo";
 import Sheet from "../../components/Sheet";
 
@@ -26,11 +27,14 @@ export default function Search() {
         const value = (document.getElementById("searchInput") as HTMLInputElement)?.value?.toLowerCase() ?? ""
         const value2 = (document.getElementById("replaceInput") as HTMLInputElement)?.value?.toLowerCase() ?? ""
         if (!value) return
-        const sheets = await repo.getSheets()
+        const sheets = structuredClone(unwrap(sheetsStore))
         const r: ISheet[] = []
         const doReplace = e.target.id === "replaceInput"
-        sheets.forEach(sheet => {
+        for (const sheetName in sheets) {
+            const sheet = sheets[sheetName]
             let value_tmp = value
+            sheet.originalIndexes = []
+
             if (doReplace) { 
                 sheet.content = sheet.content.map(row => {
                     return row.map(cell => cell?.toLowerCase()?.replaceAll(value, value2) ?? cell)
@@ -39,21 +43,23 @@ export default function Search() {
                 value_tmp = value2
             }
 
-            sheet.content = sheet.content.filter(row => { 
+            sheet.content = sheet.content.filter((row, rowIndex) => { 
                 if (!includeOriginal) row = row.slice(1)
                 if (useRegexp) return row.some(cell => new RegExp(value_tmp).test(cell!))
-                return row.some(cell => cell?.toLowerCase().includes(value_tmp))
+                const found = row.some(cell => cell?.toLowerCase().includes(value_tmp))
+                if (found) sheet.originalIndexes?.push(rowIndex)
+                return found
             })
             if (sheet.content.length > 0) r.push(sheet)
-        })
+        }
 
         setResults(r)
-        //console.log(r)
+        console.log(r)
     }
 
     createEffect(async() => {
         repo.open()
-        setSheets(await repo.getSheetsMap())
+        if (!Object.keys(sheetsStore)) setSheets(await repo.getSheetsMap())
         document.getElementById("searchInput")?.addEventListener('search', onSearch as any)
         document.getElementById("replaceInput")?.addEventListener('search', onSearch as any)
     })

@@ -24,13 +24,15 @@ export default function ExplorerPage({  }: ExplorerProps) {
 
     createEffect(async() => { 
         repo()?.open()
-        const sheets = await repo()?.getSheets()
-        sheets?.forEach((store, i) => {
+        const repoSheets = await repo()?.getSheets()
+        repoSheets?.forEach((store, i) => {
             if (i===0) setCurrentFile(store.filename)
-            setSheets(store.filename, store)
+            if (!sheets[store.filename]) setSheets(store.filename, store)
         })
 
     })
+
+    //createEffect(() => current_file() && console.log(sheets))
 
 
     return ( 
