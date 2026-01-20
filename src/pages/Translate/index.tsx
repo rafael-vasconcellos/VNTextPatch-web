@@ -24,7 +24,7 @@ const Log = createLog()
 export default function TranslatePage() {
     return (
         <RepoContextProvider>
-            <main class="card h-full flex">
+            <main class="card h-full flex" id="translate">
                 <Show when={status()}>
                     <Log.Component>
                         <button onclick={translator.abort}>Abort</button>

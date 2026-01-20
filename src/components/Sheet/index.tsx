@@ -39,7 +39,7 @@ export default function Sheet(props: SheetProps) {
                 themeName: 'ht-theme-main-dark',
                 startRows: 8,
                 startCols: 5,
-                rowHeaders: (index) => String(props.sheet?.originalIndexes?.[index] ?? index),
+                rowHeaders: (index) => String((props.sheet?.originalIndexes?.[index] ?? index)+1),
                 colHeaders: ["Original Text", "Initial", "Machine Translation", "Better Translation", "Best Translation"],
                 licenseKey: 'non-commercial-and-evaluation',
                 afterChange(change, source) {
