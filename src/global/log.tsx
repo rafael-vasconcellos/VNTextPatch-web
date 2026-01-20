@@ -12,12 +12,12 @@ export function createLog() {
 
     function LogComponent(props: any) {
         return (
-            <div class="h-screen w-screen fixed bg-black/40 flex justify-center items-center">
-                <section>
-                    <div class="w-1/2 border-white border-[1px]">
+            <div class="h-screen w-screen fixed z-50 top-0 bg-black/40 backdrop-blur-md flex justify-center items-center">
+                <section class="w-1/2 h-4/5">
+                    <div class="h-5/6 px-4 py-2 border-white border-[1px] overflow-y-scroll">
                         {list.map(log => <p>{log}</p>)}
                     </div>
-                    <div class="w-1/4 py-4 flex justify-center">{props.children}</div>
+                    <div class="py-4 flex justify-center">{props.children}</div>
                 </section>
             </div>
         )
@@ -27,6 +27,9 @@ export function createLog() {
         Component: LogComponent,
         Add(text: string) {
             setLog("logs", list.length, text)
+        },
+        Clear() {
+            setLog("logs", [])
         }
     }
 }

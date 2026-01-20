@@ -17,6 +17,8 @@ interface MyCustomEvent {
     }
 }
 
+type EventName = "translationDone" | "batchTranslate"
+
 class TranslationAbortedException extends Error {
     constructor() { super("Translation aborted!") }
 }
@@ -50,7 +52,7 @@ export class Translator {
     private engine?: TranslatorEngine
     private abortFlag: boolean = false
     private emitter = new MyEmitter()
-    public on(eventName: string, listener: (e: MyCustomEvent) => void) {
+    public on(eventName: EventName, listener: (e: MyCustomEvent) => void) {
         this.emitter.on(eventName, listener as any)
     }
     constructor(init?: TranslatorInit) {
@@ -113,13 +115,17 @@ export class Translator {
 
             const batch = slice.map(item => item.row[TranslationConfig.srcColumn])
             const translation = await this.engine!.translate(batch)
+            .catch(e => {
+                console.error(e)
+                return []
+            })
             translation.forEach((line, i) => {
                 if (slice[i].row[TranslationConfig.targetColumn] && !TranslationConfig.overrideCells) return
                 slice[i].row[TranslationConfig.targetColumn] = line
                 sheet.content[slice[i].index] = slice[i].row
             })
 
-            if (TranslationConfig.saveOnEachBatch) { 
+            if (TranslationConfig.saveOnEachBatch && translation.length) { 
                 if (!this.repo) throw new RepoNotProvidedException()
                 this.repo.updateSheet(sheet) 
             }

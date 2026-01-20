@@ -149,7 +149,7 @@ export class ProjectRepo extends Repo {
 
         response.onsuccess = () => resolve(response.result)
         response.onerror = () => reject(response.error)
-        return promise as Promise<IDBValidKey[]>
+        return promise as Promise<string[]>
     }
 
     addEventListener<K extends keyof EventMap>(eventName: keyof EventMap, handler: EventMap[K]) {

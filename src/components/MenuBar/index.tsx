@@ -5,6 +5,7 @@ import Inject from "./Inject";
 import New from "./New";
 import Save from "./Save";
 import Search from "./Search";
+import Translate from "./translate";
 
 
 export default function MenuBar() { 
@@ -12,9 +13,10 @@ export default function MenuBar() {
         <section class="w-full py-3 mb-10 flex justify-center items-center gap-4">
             <New class="size-8" />
             <Save class="size-7" />
+            <Search class="size-8" />
+            <Translate class="size-8" />
             <Import class="size-8" />
             <Export class="size-8" />
-            <Search class="size-8" />
             <Inject class="size-8" />
             <GithubStats />
         </section>

@@ -11,27 +11,43 @@ import "./style.css"
 
 
 
-interface SheetStatus {
-    sheetName: string
-    active: boolean
-}
-
-const [ sheetStatus, setSheetStatus ] = createSignal<SheetStatus[]>([])
-const [ status, setStatus ] = createSignal(false)
+const [ status, setStatus ] = createSignal(0)
 const translator = new Translator()
 const Log = createLog()
 
 export default function TranslatePage() {
+    const { project_name } = useParams()
+    const navigate = useNavigate()
+
     return (
         <RepoContextProvider>
-            <main class="card h-full flex" id="translate">
+            <button class="bg-primary hover:bg-primary/60 p-2 rounded-full absolute left-16 top-4 cursor-pointer" 
+            onClick={() => navigate("/" + project_name)}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                </svg>
+            </button>
+            <main class="h-full" id="translate">
                 <Show when={status()}>
                     <Log.Component>
-                        <button onclick={translator.abort}>Abort</button>
+                        <Show when={status()===1}>
+                            <button class="p-4 bg-zinc-500 rounded-lg cursor-pointer hover:bg-primary"
+                            onclick={translator.abort}>
+                                Abort
+                            </button>
+                        </Show>
+                        <Show when={status()===2}>
+                            <button class="p-4 bg-zinc-500 rounded-lg cursor-pointer hover:bg-primary"
+                            onclick={() => setStatus(0)}>
+                                Close
+                            </button>
+                        </Show>
                     </Log.Component>
                 </Show>
-                <SheetSelector />
-                <TranslationSettingsWidget />
+                <div class="card flex m-[5%]">
+                    <SheetSelector />
+                    <TranslationSettingsWidget />
+                </div>
             </main>
         </RepoContextProvider>
     )
@@ -44,8 +60,8 @@ function TranslationSettingsWidget() {
 
     async function translateProject() {
         if (status()) return
-        setStatus(true)
-        const sheetNames = sheetStatus().filter(sheet => sheet.active).map(sheet => sheet.sheetName)
+        setStatus(1)
+        const sheetNames = Array.from(document.querySelectorAll('input[type=checkbox]:checked ~ label')).map(e => e.textContent)
         const engine = getTranslator(TranslationConfig.translatorName).Build({
             batchSize: 25,
             targetLanguage: "en"
@@ -55,8 +71,9 @@ function TranslationSettingsWidget() {
         translator.on("batchTranslate", ({ detail: data }) => {
             Log.Add(`Translating ${data.filename} ${data.start}/${data.end}`)
         })
+        translator.on("translationDone", () => setStatus(2))
         await translator.translate(sheetNames)
-        setStatus(false)
+        //setStatus(false)
     }
 
 
@@ -94,7 +111,8 @@ function TranslationSettingsWidget() {
                 <button class="px-4 py-2 bg-zinc-500 rounded-lg cursor-pointer hover:bg-zinc-500/60" onClick={() => {
                     if (project_name) navigate("/" + project_name)
                 }}>Cancel</button>
-                <button class="px-4 py-2 bg-primary rounded-lg cursor-pointer hover:bg-primary/60">
+                <button onclick={translateProject}
+                class="px-4 py-2 bg-primary rounded-lg cursor-pointer hover:bg-primary/60">
                     Translate
                 </button>
             </div>
@@ -104,28 +122,34 @@ function TranslationSettingsWidget() {
 
 
 function SheetSelector() {
+    const [ sheetNames, setSheetNames ] = createSignal<string[]>([])
     const [ repo ] = useRepoContext()
 
     createEffect(async() => {
         if (!repo().isOpen) { repo().open() }
-        const sheets = await repo().getSheetNames().then(sheetNames => 
-            sheetNames.map(sheetName => ({
-                sheetName: sheetName as string,
-                active: false
-            }))
-        )
-        setSheetStatus(sheets)
+        setSheetNames(await repo().getSheetNames())
     })
 
 
     return (
         <section class="h-full w-44 overflow-y-scroll">
-            {sheetStatus().map(sheet => 
+            <div class="w-full flex justify-between">
+                <input type="checkbox" id={`all-check`} checked={true}
+                onChange={(ev) => {
+                    document.querySelectorAll('input[type=checkbox]')?.forEach((e) => {
+                        const el = e as HTMLInputElement
+                        el.checked = ev.currentTarget.checked
+                    })
+                }} />
+                <label for={`all-check`} class={`select-none px-3 py-2 cursor-pointer border-handsontable-border font-handsontable text-left flex justify-between items-center`}>
+                    Select All
+                </label>
+            </div>
+            {sheetNames().map(sheetName => 
                 <div class="w-full flex justify-between">
-                    <input type="checkbox" id={`${sheet.sheetName}-check`} checked={true}
-                    onChange={e => sheet.active = e.currentTarget.checked} />
-                    <label for={`${sheet.sheetName}-check`} class={`select-none px-3 py-2 cursor-pointer border-handsontable-border font-handsontable text-left flex justify-between items-center`}>
-                        {sheet.sheetName}
+                    <input type="checkbox" id={`${sheetName}-check`} checked={true} />
+                    <label for={`${sheetName}-check`} class={`select-none px-3 py-2 cursor-pointer border-handsontable-border font-handsontable text-left flex justify-between items-center`}>
+                        {sheetName}
                     </label>
                 </div>
             )}
