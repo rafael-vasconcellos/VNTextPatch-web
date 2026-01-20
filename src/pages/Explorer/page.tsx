@@ -1,5 +1,5 @@
 import { createEffect, createSignal, For, Show } from "solid-js"
-import { sheets, setSheets, updateSheet } from "../../global/utils"
+import { sheets, setSheets, updateSheetContent } from "../../global/utils"
 import { useRepoContext } from "../context/repo"
 import Sheet from "../../components/Sheet"
 import MenuBar from "../../components/MenuBar"
@@ -53,7 +53,7 @@ export default function ExplorerPage({  }: ExplorerProps) {
                 </section>
                 <Show when={sheets[current_file()]}>
                     <Sheet sheet={sheets[current_file()]} onChange={({ sheet }) => { 
-                        sheet && updateSheet(sheet.filename!, sheet.content!)
+                        sheet && updateSheetContent(sheet.filename!, sheet.content!)
                     }} />
                 </Show>
             </main>

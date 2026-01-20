@@ -1,7 +1,7 @@
 import type { JSX } from "solid-js"
 import { useRepoContext } from "../../pages/context/repo"
 import Papa from "papaparse"
-import { updateSheet } from "../../global/utils";
+import { updateSheetContent } from "../../global/utils";
 
 
 async function parseCSV(csvText: string): Promise<string[][] | void> {
@@ -57,7 +57,7 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
                 }
             })
 
-            if (updated) { updateSheet(fileName, prevSheet) ; console.log("updated!") }
+            if (updated) { updateSheetContent(fileName, prevSheet) ; console.log("updated!") }
         })
     }
 

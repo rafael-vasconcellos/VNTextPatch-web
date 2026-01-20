@@ -8,7 +8,7 @@ export const [ vn ] = createSignal(new VNTextPatch())
 export const [ projects, setProjects ] = createSignal<Array<string | undefined> | null>(null)
 export const [ sheets, setSheets ] = createStore<Record<string, Sheet>>({})
 
-export function updateSheet(fileName: string, sheet: (string | null)[][]) {
+export function updateSheetContent(fileName: string, sheet: (string | null)[][]) {
     if (sheets[fileName]) {
         setSheets(fileName, "content", sheet)
         setSheets(fileName, "translatedRows", sheet.filter(rows => rows.filter(c=>c).length > 1).length)

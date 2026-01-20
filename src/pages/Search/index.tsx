@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
 import { unwrap } from "solid-js/store";
 import { ProjectRepo } from "../../global/ProjectRepo";
-import { setSheets, sheets as sheetsStore, updateSheet } from "../../global/utils";
+import { setSheets, sheets as sheetsStore, updateSheetContent } from "../../global/utils";
 import type { Sheet as ISheet } from "../../global/ProjectRepo";
 import Sheet from "../../components/Sheet";
 
@@ -39,7 +39,7 @@ export default function Search() {
                 sheet.content = sheet.content.map(row => {
                     return row.map(cell => cell?.toLowerCase()?.replaceAll(value, value2) ?? cell)
                 })
-                updateSheet(sheet.filename, sheet.content)
+                updateSheetContent(sheet.filename, sheet.content)
                 value_tmp = value2
             }
 
