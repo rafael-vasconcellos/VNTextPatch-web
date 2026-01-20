@@ -8,9 +8,15 @@ import type { Sheet } from '../../global/ProjectRepo';
 //import 'handsontable/styles/ht-theme-horizon.css';
 
 
+
+interface EventProps {
+    sheet?: Partial<Sheet>
+    change?: any[]
+}
+
 interface SheetProps { 
     sheet?: Sheet
-    onChange?: (s: Partial<Sheet>) => void
+    onChange?: (p: EventProps) => void
     sheetOptions?: {
         readOnly: boolean
     }
@@ -65,12 +71,16 @@ export default function Sheet(props: SheetProps) {
 
             hot.addHook('afterChange', (changes, _) => { 
                 changes?.forEach(change => { 
-                    const [ row, col, , value ] = change
+                    const [ row, col, prevValue, value ] = change
                     if (col===0 && !value) { hot.alter('remove_row', row) }
-                })
+                    //console.log(_)
+                });
                 props.onChange && props.sheet && props.onChange({
-                    filename: props.sheet.filename,
-                    content: hot.getData()
+                    sheet: {
+                        ...props.sheet,
+                        content: hot.getData()
+                    },
+                    change: changes?.[0]
                 })
             })
         }

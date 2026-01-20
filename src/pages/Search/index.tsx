@@ -110,7 +110,14 @@ export default function Search() {
                         </Show>
                     </Show>
                     <Show when={results()?.[current_file()]}>
-                        <Sheet sheet={results()?.[current_file()]} sheetOptions={{ readOnly: true }} />
+                        <Sheet 
+                        sheet={results()?.[current_file()]} 
+                        //sheetOptions={{ readOnly: true }}
+                        onChange={({ change: changeInFilteredSheet, sheet: filteredSheet }) => { 
+                            if (!filteredSheet || !changeInFilteredSheet || !filteredSheet.filename || !filteredSheet.originalIndexes) return
+                            const [ row, col,, value ] = changeInFilteredSheet
+                            setSheets(filteredSheet.filename, "content", filteredSheet.originalIndexes[row], col, value)
+                        }} />
                     </Show>
                 </section>
             </main>

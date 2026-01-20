@@ -52,8 +52,8 @@ export default function ExplorerPage({  }: ExplorerProps) {
                     </For>
                 </section>
                 <Show when={sheets[current_file()]}>
-                    <Sheet sheet={sheets[current_file()]} onChange={sheet => { 
-                        updateSheet(sheet.filename!, sheet.content!)
+                    <Sheet sheet={sheets[current_file()]} onChange={({ sheet }) => { 
+                        sheet && updateSheet(sheet.filename!, sheet.content!)
                     }} />
                 </Show>
             </main>
