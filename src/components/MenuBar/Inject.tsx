@@ -1,6 +1,7 @@
-import { useRepoContext } from "../../pages/context/repo"
-import { downloadObjFiles, vn } from '../../global/utils'
 import { createSignal, Show, type JSX } from "solid-js"
+import { unwrap } from "solid-js/store"
+import { useRepoContext } from "../../pages/context/repo"
+import { downloadObjFiles, vn, sheets as sheetsStore } from '../../global/utils'
 import FeedBack from "../Feedback"
 
 
@@ -16,22 +17,22 @@ export default function Inject({ class: className }: JSX.ButtonHTMLAttributes<HT
                     jsonFiles: await vn().extractLocal(fileList),
                 })), 
 
-            repo().getSheets()
-                .then(storeItems => storeItems.map(storeItem => Object.values(storeItem))) 
-                .then((entries) => Object.fromEntries(entries) as Record<string, string[][]>),
+            Object.keys(unwrap(sheetsStore)).length? 
+                Promise.resolve(unwrap(sheetsStore)) : repo().getSheetsMap(),
             
             repo().getCharNames()
         ])
 
-        //console.log(sheets); console.log(jsonFiles)
-        for (let fileName in sheets) { 
-            if (sheets[fileName].length !== jsonFiles[fileName + '.json'].length) { 
+        //console.log(sheets); //console.log(jsonFiles)
+        for (let fileName in sheets) { //console.log(fileName)
+            if (fileName === "char_names") continue
+            if (sheets[fileName].content.length !== jsonFiles[fileName + '.json'].length) { 
                 throw new Error(fileName + ' ' + "sheet is incompatible with original game files.")
             }
-            for (let i=0; i<sheets[fileName].length; i++) { 
-                const messages = sheets[fileName][i].filter(m => m)
+            for (let i=0; i<sheets[fileName].content.length; i++) { 
+                const messages = sheets[fileName].content[i].filter(m => m)
                 const line = jsonFiles[fileName + '.json'][i]
-                line.message = messages.at(-1) ?? messages[0]
+                line.message = messages.at(-1) ?? messages[0] ?? ""
                 if (char_names[line.name] && char_names[line.name] !== line.name) { 
                     line.name = char_names[line.name] 
                 }
