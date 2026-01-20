@@ -41,6 +41,7 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
 
             let updated = false
             const prevSheet = (await repo().getSheet(fileName)).content
+            //console.log(sheets[fileName]?.content.length)
             content.forEach(row => { 
                 row[0] = row[0]?.replaceAll('"', "").replaceAll(/\r?\n/g, "")
                 const [ original_text, ...translations ] = row ?? []

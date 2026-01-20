@@ -59,7 +59,7 @@ export default function Search() {
 
     createEffect(async() => {
         repo.open()
-        if (!Object.keys(sheetsStore)) setSheets(await repo.getSheetsMap())
+        if (!Object.keys(sheetsStore).length) setSheets(await repo.getSheetsMap())
         document.getElementById("searchInput")?.addEventListener('search', onSearch as any)
         document.getElementById("replaceInput")?.addEventListener('search', onSearch as any)
     })
