@@ -1,6 +1,7 @@
+import { useParams } from "@solidjs/router"
 import { createSignal, Show, type JSX } from "solid-js"
 import { unwrap } from "solid-js/store"
-import { sheets } from "../../global/utils"
+import { sheets_store } from "../../global/store"
 import { useRepoContext } from "../../pages/context/repo"
 import FeedBack from "../Feedback"
 
@@ -8,10 +9,11 @@ import FeedBack from "../Feedback"
 export default function Export({ class: className }: JSX.ButtonHTMLAttributes<HTMLButtonElement>) { 
     const [ progress_text, setProgressText ] = createSignal<string | null>(null)
     const [ repo ] = useRepoContext()
+    const { project_name } = useParams()
     let button: HTMLButtonElement | undefined
 
     async function extract() { 
-        const outputFiles = Object.keys(unwrap(sheets)).length? unwrap(sheets) : await repo().getSheetsMap()
+        const outputFiles = Object.keys(unwrap(sheets_store[project_name])).length? unwrap(sheets_store[project_name]) : await repo().getSheetsMap()
         const dirHandle: FileSystemDirectoryHandle = await (window as any).showDirectoryPicker()
         Object.values(outputFiles).forEach(async (file, i) => { 
             const fileHandle = await dirHandle.getFileHandle(file.filename + '.csv', { create: true })

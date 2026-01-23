@@ -1,13 +1,17 @@
+import { useParams } from "@solidjs/router"
 import { createSignal, Show, type JSX } from "solid-js"
 import { unwrap } from "solid-js/store"
 import { useRepoContext } from "../../pages/context/repo"
-import { downloadObjFiles, vn, sheets as sheetsStore } from '../../global/utils'
+import { sheets_store } from "../../global/store"
+import { downloadObjFiles, vn } from '../../global/utils'
 import FeedBack from "../Feedback"
 
 
+
 export default function Inject({ class: className }: JSX.ButtonHTMLAttributes<HTMLButtonElement>) { 
-    const [ repo ] = useRepoContext()
     const [ progress_text, setProgressText ] = createSignal<string | null>(null)
+    const { project_name } = useParams()
+    const [ repo ] = useRepoContext()
 
     async function inject() { 
         const [ { jsonFiles, fileList }, sheets, char_names ] = await Promise.all([ 
@@ -17,8 +21,8 @@ export default function Inject({ class: className }: JSX.ButtonHTMLAttributes<HT
                     jsonFiles: await vn().extractLocal(fileList),
                 })), 
 
-            Object.keys(unwrap(sheetsStore)).length? 
-                Promise.resolve(unwrap(sheetsStore)) : repo().getSheetsMap(),
+            Object.keys(unwrap(sheets_store[project_name])).length? 
+                Promise.resolve(unwrap(sheets_store[project_name])) : repo().getSheetsMap(),
             
             repo().getCharNames()
         ])

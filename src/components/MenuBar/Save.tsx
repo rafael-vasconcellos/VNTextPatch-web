@@ -1,16 +1,19 @@
+import { useParams } from "@solidjs/router"
 import type { JSX } from "solid-js"
 import { unwrap } from "solid-js/store"
-import { sheets } from "../../global/utils"
+import { sheets_store } from "../../global/store"
 import { useRepoContext } from "../../pages/context/repo"
+
 
 
 export default function Save({ class: className }: JSX.ButtonHTMLAttributes<HTMLButtonElement>) {
     const [ repo ] = useRepoContext()
+    const { project_name } = useParams()
     let button: HTMLButtonElement | undefined
 
     async function save() {
-        const promises = Object.keys(sheets).map(async fileName => {
-            return repo().updateSheet(unwrap(sheets[fileName]))
+        const promises = Object.keys(unwrap(sheets_store[project_name])).map(async fileName => {
+            return repo().updateSheet(unwrap(sheets_store[project_name][fileName]))
             .catch(e => { // console.log(unwrap(sheets[fileName]))
                 console.error(e)
             })

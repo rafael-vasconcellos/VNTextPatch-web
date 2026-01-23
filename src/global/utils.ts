@@ -1,19 +1,9 @@
 import { createSignal } from "solid-js";
 import { VNTextPatch } from "./VNTextPatch";
-import { createStore } from "solid-js/store";
-import type { Sheet } from "./ProjectRepo";
 
 
 export const [ vn ] = createSignal(new VNTextPatch())
 export const [ projects, setProjects ] = createSignal<Array<string | undefined> | null>(null)
-export const [ sheets, setSheets ] = createStore<Record<string, Sheet>>({})
-
-export function updateSheetContent(fileName: string, sheet: (string | null)[][]) {
-    if (sheets[fileName]) {
-        setSheets(fileName, "content", sheet)
-        setSheets(fileName, "translatedRows", sheet.filter(rows => rows.filter(c=>c).length > 1).length)
-    }
-}
 
 export async function* downloadObjFiles(files: Record<string, any>) { 
     const dirHandle: FileSystemDirectoryHandle = await (window as any).showDirectoryPicker()

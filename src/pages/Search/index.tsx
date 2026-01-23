@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
 import { unwrap } from "solid-js/store";
 import { ProjectRepo } from "../../global/ProjectRepo";
-import { setSheets, sheets as sheetsStore, updateSheetContent } from "../../global/utils";
+import { sheets_store, updateSheetContent, setSheets, setProjectSheets } from "../../global/store";
 import type { Sheet as ISheet } from "../../global/ProjectRepo";
 import Sheet from "../../components/Sheet";
 
@@ -27,7 +27,7 @@ export default function Search() {
         const value = (document.getElementById("searchInput") as HTMLInputElement)?.value?.toLowerCase() ?? ""
         const value2 = (document.getElementById("replaceInput") as HTMLInputElement)?.value?.toLowerCase() ?? ""
         if (!value) return
-        const sheets = structuredClone(unwrap(sheetsStore))
+        const sheets = structuredClone(unwrap(sheets_store[project_name]))
         const r: ISheet[] = []
         const doReplace = e.target.id === "replaceInput"
         for (const sheetName in sheets) {
@@ -39,14 +39,18 @@ export default function Search() {
                 sheet.content = sheet.content.map(row => {
                     return row.map(cell => cell?.toLowerCase()?.replaceAll(value, value2) ?? cell)
                 })
-                updateSheetContent(sheet.filename, sheet.content)
+                updateSheetContent(project_name, sheet.filename, sheet.content)
                 value_tmp = value2
             }
 
             sheet.content = sheet.content.filter((row, rowIndex) => { 
+                let found
                 if (!includeOriginal) row = row.slice(1)
-                if (useRegexp) return row.some(cell => new RegExp(value_tmp).test(cell!))
-                const found = row.some(cell => cell?.toLowerCase().includes(value_tmp))
+                if (useRegexp) {
+                    found = row.some(cell => new RegExp(value_tmp).test(cell!))
+                } else {
+                    found = row.some(cell => cell?.toLowerCase().includes(value_tmp))
+                }
                 if (found) sheet.originalIndexes?.push(rowIndex)
                 return found
             })
@@ -59,7 +63,7 @@ export default function Search() {
 
     createEffect(async() => {
         repo.open()
-        if (!Object.keys(sheetsStore).length) setSheets(await repo.getSheetsMap())
+        if (!Object.keys(sheets_store[project_name]).length) setSheets(project_name, await repo.getSheetsMap())
         document.getElementById("searchInput")?.addEventListener('search', onSearch as any)
         document.getElementById("replaceInput")?.addEventListener('search', onSearch as any)
     })
@@ -116,7 +120,7 @@ export default function Search() {
                         onChange={({ change: changeInFilteredSheet, sheet: filteredSheet }) => { 
                             if (!filteredSheet || !changeInFilteredSheet || !filteredSheet.filename || !filteredSheet.originalIndexes) return
                             const [ row, col,, value ] = changeInFilteredSheet
-                            setSheets(filteredSheet.filename, "content", filteredSheet.originalIndexes[row], col, value)
+                            setProjectSheets(project_name, filteredSheet.filename, "content", filteredSheet.originalIndexes[row], col, value)
                         }} />
                     </Show>
                 </section>
