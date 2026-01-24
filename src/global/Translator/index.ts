@@ -1,5 +1,5 @@
 import { TranslationConfig, type TranslatorEngine } from "./config";
-import { updateSheetContent } from "../utils"
+import { updateSheetContent } from "../store"
 import type { ProjectRepo, Sheet } from "../ProjectRepo";
 
 
@@ -77,7 +77,7 @@ export class Translator {
             if (this.abortFlag) return Promise.resolve()
             const sheet = await this.repo.getSheet(sheetName)
             await this.translateSheet(sheet)
-                .then(() => updateSheetContent(sheet.filename, sheet.content))
+                .then(() => updateSheetContent(this.repo!.projectName!, sheet.filename, sheet.content))
                 .catch(e => !(e instanceof TranslationAbortedException) && console.error(e))
         }
 

@@ -1,7 +1,9 @@
+import { useParams } from "@solidjs/router";
 import type { JSX } from "solid-js"
-import { useRepoContext } from "../../pages/context/repo"
 import Papa from "papaparse"
-import { updateSheetContent } from "../../global/utils";
+import { useRepoContext } from "../../pages/context/repo"
+import { updateSheetContent } from "../../global/store";
+
 
 
 async function parseCSV(csvText: string): Promise<string[][] | void> {
@@ -15,6 +17,7 @@ async function parseCSV(csvText: string): Promise<string[][] | void> {
 
 export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HTMLButtonElement>) { 
     const [ repo ] = useRepoContext()
+    const { project_name } = useParams()
 
     async function importFiles() { 
         const files: FileSystemFileHandle[] = await (window as any).showOpenFilePicker({
@@ -57,7 +60,7 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
                 }
             })
 
-            if (updated) { updateSheetContent(fileName, prevSheet) ; console.log("updated!") }
+            if (updated) { updateSheetContent(project_name, fileName, prevSheet) ; console.log("updated!") }
         })
     }
 
