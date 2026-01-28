@@ -1,22 +1,29 @@
 import { createEffect } from 'solid-js';
 import { unwrap } from "solid-js/store";
 import Handsontable from 'handsontable';
+import type { Sheet } from '../../global/ProjectRepo';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
 import './style.css';
-import type { Sheet } from '../../global/ProjectRepo';
 //import 'handsontable/styles/ht-theme-horizon.css';
 
 
 
-interface EventProps {
+interface ChangeEvent {
     sheet?: Partial<Sheet>
     change?: any[]
 }
 
+interface SelectionEvent {
+    row: number
+    col: number
+}
+
 interface SheetProps { 
     sheet?: Sheet
-    onChange?: (p: EventProps) => void
+    onChange?: (p: ChangeEvent) => void
+    onSelection?: (p: SelectionEvent) => void
+    onDeselect?: () => void
     sheetOptions?: {
         readOnly: boolean
     }
@@ -41,11 +48,15 @@ export default function Sheet(props: SheetProps) {
                 startCols: 5,
                 rowHeaders: (index) => String((props.sheet?.originalIndexes?.[index] ?? index)+1),
                 colHeaders: ["Original Text", "Initial", "Machine Translation", "Better Translation", "Best Translation"],
-                licenseKey: 'non-commercial-and-evaluation',
                 afterChange(change, source) {
                     if (source === 'loadData' || !change) { return }
                     //console.log(change)
                 },
+                afterSelection(row, col, row2, col2) {
+                    if (row===row2 && col===col2 && props.onSelection)
+                        props.onSelection({ row, col })
+                },
+                afterDeselect() { props.onDeselect && props.onDeselect() },
                 autoWrapRow: true,
                 autoWrapCol: true,
                 data: unwrap(props.sheet!.content),
@@ -66,14 +77,15 @@ export default function Sheet(props: SheetProps) {
                 renderAllColumns: false,
                 readOnly: props.sheetOptions?.readOnly===true,
                 stretchH: "none",
-                colWidths: 215
+                colWidths: 215,
+                licenseKey: 'non-commercial-and-evaluation',
             });
 
             hot.addHook('afterChange', (changes, _) => { 
                 changes?.forEach(change => { 
-                    const [ row, col, prevValue, value ] = change
+                    const [ row, col, _, value ] = change
                     if (col===0 && !value) { hot.alter('remove_row', row) }
-                    //console.log(_)
+                    //console.log(_) // _ = prevValue
                 });
                 props.onChange && props.sheet && props.onChange({
                     sheet: {

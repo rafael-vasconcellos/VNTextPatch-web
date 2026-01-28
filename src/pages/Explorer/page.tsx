@@ -1,5 +1,6 @@
 import { useParams } from "@solidjs/router"
 import { createEffect, createSignal, For, Show } from "solid-js"
+import { unwrap } from "solid-js/store"
 import { useRepoContext } from "../context/repo"
 import { sheets_store, setSheet, updateSheetContent, setSheets } from "../../global/store"
 import Sheet from "../../components/Sheet"
@@ -39,7 +40,7 @@ export default function ExplorerPage({  }: ExplorerProps) {
             if (i===0) setCurrentFile(store.filename)
             if (!sheets_store[project_name]?.[store.filename]) setSheet(project_name, store.filename, store)
         })
-
+        console.log(unwrap(sheets_store))
     })
 
     //createEffect(() => current_file() && console.log(sheets))
