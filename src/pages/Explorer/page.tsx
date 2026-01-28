@@ -1,7 +1,7 @@
 import { useParams } from "@solidjs/router"
 import { createEffect, createSignal, For, Show } from "solid-js"
 import { useRepoContext } from "../context/repo"
-import { sheets_store, setSheet, updateSheetContent } from "../../global/store"
+import { sheets_store, setSheet, updateSheetContent, setSheets } from "../../global/store"
 import Sheet from "../../components/Sheet"
 import MenuBar from "../../components/MenuBar"
 import SkeletonLoading from "../../components/SkeletonLoading"
@@ -24,6 +24,13 @@ export default function ExplorerPage({  }: ExplorerProps) {
     const [ current_file, setCurrentFile ] = createSignal<string>('')
     const [ repo ] = useRepoContext()
     const { project_name } = useParams()
+
+    createEffect(() => {
+        for (const projectName in sheets_store) {
+            if (projectName !== project_name)
+                setSheets(projectName, {})
+        }
+    })
 
     createEffect(async() => { 
         repo()?.open()
