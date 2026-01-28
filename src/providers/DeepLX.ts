@@ -1,20 +1,13 @@
-import type { TranslatorConstructor, TranslatorEngine, TranslatorEngineInit } from "../global/Translator/config"
+import type { TranslatorConstructor, TranslatorEngine } from "../global/Translator/config"
+import { EngineCore } from "../global/Translator/enginecore"
 
 
 
-export const DeepLX: TranslatorConstructor = class implements TranslatorEngine {
+export const DeepLX: TranslatorConstructor = class extends EngineCore implements TranslatorEngine {
     public targetLanguage: string = "en"
-    public batchSize: number = 50
-    constructor(init: TranslatorEngineInit) {
-        if (init.targetLanguage) this.targetLanguage = init.targetLanguage
-        if (init.batchSize) this.batchSize = init.batchSize
-    }
+    public batchSize: number = 25
 
-    public static Build(init: TranslatorEngineInit) {
-        return new DeepLX(init)
-    }
-
-    async handler(text: string): Promise<string | null> { 
+    private async handler(text: string): Promise<string | null> { 
         return await fetch("https://deep-lx-vercel-coral.vercel.app/api/translate", { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -33,7 +26,7 @@ export const DeepLX: TranslatorConstructor = class implements TranslatorEngine {
         })
     }
 
-    async translate(texts: string[]) {
+    async translate(texts: string[]): Promise<string[]> {
         const promises = texts.map(text => this.handler(text))
         return await Promise.all(promises).then(translated_texts => {
             if (translated_texts.some(text => text?.length)) return translated_texts as string[]

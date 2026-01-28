@@ -38,7 +38,7 @@ export default function TranslatePage() {
                         </Show>
                         <Show when={status()===2}>
                             <button class="p-4 bg-zinc-500 rounded-lg cursor-pointer hover:bg-primary"
-                            onclick={() => setStatus(0)}>
+                            onclick={() => { setStatus(0); Log.Clear() }}>
                                 Close
                             </button>
                         </Show>
@@ -62,10 +62,7 @@ function TranslationSettingsWidget() {
         if (status()) return
         setStatus(1)
         const sheetNames = Array.from(document.querySelectorAll('input[type=checkbox]:checked ~ label')).map(e => e.textContent)
-        const engine = getTranslator(TranslationConfig.translatorName).Build({
-            batchSize: 25,
-            targetLanguage: "en"
-        })
+        const engine = getTranslator(TranslationConfig.translatorName).Build()
         translator.setRepo(repo())
         translator.setEngine(engine)
         translator.on("batchTranslate", ({ detail: data }) => {
@@ -83,7 +80,7 @@ function TranslationSettingsWidget() {
                 <label for="translator-name">Translator: </label>
                 <select class="m-1 p-1 border-[1px] border-zinc-500 rounded-lg" id="translator-name"
                 onChange={e => e.currentTarget.value && TranslationConfig.setTranslatorName(e.currentTarget.value)}>
-                    <option value="DeepLX" selected>DeepLX</option>
+                    <option value="Google" selected>Google</option>
                 </select>
             </div>
             <div class="flex justify-between">

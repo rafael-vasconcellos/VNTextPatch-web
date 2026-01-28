@@ -8,8 +8,8 @@ export interface TranslatorEngine extends TranslatorEngineInit {
 }
 
 export interface TranslatorConstructor {
-    new(init: TranslatorEngineInit): TranslatorEngine
-    Build(init: TranslatorEngineInit): TranslatorEngine
+    new(init?: TranslatorEngineInit): TranslatorEngine
+    Build(init?: TranslatorEngineInit): TranslatorEngine
 }
 
 
@@ -71,6 +71,6 @@ export class TranslationConfig {
     }
 
     public static get translatorName() {
-        return sessionStorage.getItem("translatorName") ?? "DeepLX"
+        return sessionStorage.getItem("translatorName") ?? "Google"
     }
 }
