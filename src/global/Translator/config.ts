@@ -17,18 +17,18 @@ export interface TranslatorConstructor {
 
 export class TranslationConfig { 
     public static get ignoreTranslated(): boolean {
-        const strValue = sessionStorage.getItem("ignoreTranslated")
-        return strValue? Boolean(strValue) : true
+        const strValue = sessionStorage.getItem("ignoreTranslated") ?? "1"
+        return Number(strValue)>0
     }
 
     public static get overrideCells(): boolean {
-        const strValue = sessionStorage.getItem("overrideCells")
-        return strValue? Boolean(strValue) : false
+        const strValue = sessionStorage.getItem("overrideCells") ?? "0"
+        return Number(strValue)>0
     }
 
     public static get saveOnEachBatch(): boolean {
-        const strValue = sessionStorage.getItem("saveOnEachBatch")
-        return strValue? Boolean(strValue) : true
+        const strValue = sessionStorage.getItem("saveOnEachBatch") ?? "1"
+        return Number(strValue)>0
     }
 
     public static get targetColumn(): number {
