@@ -66,7 +66,7 @@ function TranslationSettingsWidget() {
         translator.setRepo(repo())
         translator.setEngine(engine)
         translator.on("batchTranslate", ({ detail: data }) => {
-            Log.Add(`Translating ${data.filename} ${data.start}/${data.end}`)
+            Log.Add(`Translating ${data.filename}: ${data.end}/${data.length}`)
         })
         translator.on("translationDone", () => setStatus(2))
         await translator.translate(sheetNames)

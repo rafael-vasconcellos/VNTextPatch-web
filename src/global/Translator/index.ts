@@ -1,5 +1,5 @@
 import { TranslationConfig, type TranslatorEngine } from "./config";
-import { updateSheetContent } from "../store"
+import { sheets_store, updateSheetContent } from "../store"
 import type { ProjectRepo, Sheet } from "../ProjectRepo";
 
 
@@ -13,7 +13,8 @@ interface MyCustomEvent {
     detail: {
         filename: string,
         start: number,
-        end: number
+        end: number,
+        length: number
     }
 }
 
@@ -78,6 +79,7 @@ export class Translator {
             const sheet = await this.repo.getSheet(sheetName)
             await this.translateSheet(sheet)
                 .then(() => updateSheetContent(this.repo!.projectName!, sheet.filename, sheet.content))
+                .then(() => console.log(sheets_store[this.repo!.projectName!]?.[sheet.filename]))
                 .catch(e => !(e instanceof TranslationAbortedException) && console.error(e))
         }
 
@@ -110,8 +112,9 @@ export class Translator {
             this.emitter.dispatchCustomEvent("batchTranslate", {
                 filename: sheet.filename,
                 start: startIndex+1,
-                end: endIndex+1
-            })
+                end: endIndex+1,
+                length: sheet.content.length,
+            } as MyCustomEvent['detail'])
 
             const batch = slice.map(item => item.row[TranslationConfig.srcColumn])
             const translation = await this.engine!.translate(batch)
@@ -133,3 +136,5 @@ export class Translator {
     }
 
 }
+
+
