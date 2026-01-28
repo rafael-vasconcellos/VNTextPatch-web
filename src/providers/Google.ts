@@ -3,11 +3,41 @@ import { EngineCore } from "../global/Translator/enginecore"
 
 
 export class Google extends EngineCore implements TranslatorEngine {
-    public batchSize: number = 25
+    public batchSize: number = 150
     public targetLanguage: string = "en"
     public delimiter: string = "\n<br>\n"
 
+    private readonly maxRequestsPerMinute: number = 30
+    private readonly timeWindowMs: number = 60000 // 1 minuto em ms
+    private requestTimestamps: number[] = []
+
+    private async enforceRateLimit(): Promise<void> {
+        const now = Date.now()
+        
+        // Remove timestamps que saíram da janela de 1 minuto
+        this.requestTimestamps = this.requestTimestamps.filter(
+            timestamp => now - timestamp < this.timeWindowMs
+        )
+
+        // Se atingiu o limite, aguarda
+        if (this.requestTimestamps.length >= this.maxRequestsPerMinute) {
+            const oldestTimestamp = this.requestTimestamps[0]
+            const waitTime = this.timeWindowMs - (now - oldestTimestamp)
+            if (waitTime > 0) {
+                await new Promise(resolve => setTimeout(resolve, waitTime + 100))
+                // Após aguardar, limpa novamente
+                this.requestTimestamps = this.requestTimestamps.filter(
+                    timestamp => Date.now() - timestamp < this.timeWindowMs
+                )
+            }
+        }
+
+        // Registra esta requisição
+        this.requestTimestamps.push(Date.now())
+    }
+
     private async singleHandler(text: string): Promise<string | null> {
+        await this.enforceRateLimit()
         return await fetch("https://google-translate-serverless-puce.vercel.app/api/translate", { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
