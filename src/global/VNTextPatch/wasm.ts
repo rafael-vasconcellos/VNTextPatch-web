@@ -1,46 +1,11 @@
-import jschardet from 'jschardet';
+import { MyTextDecoder } from './text';
 
 
-interface ILineJSON { 
-    name: string
-    message: string
-}
 
 interface GetFolderOptions { 
     folderName: string
     outputFiles?: Record<string, string>
     encoding?: string
-}
-
-class MyTextDecoder { 
-    private uintArray: Uint8Array
-    private fileName?: string
-    constructor(uintArray: Uint8Array, fileName?: string) { 
-        this.uintArray = uintArray
-        this.fileName = fileName
-    }
-
-    public detectEncoding() { 
-        const binaryString = new TextDecoder('latin1').decode(this.uintArray);
-        const detected = jschardet.detect(binaryString);
-
-        if (detected.encoding) { 
-            console.log(`Detected encoding for ${this.fileName || ''}: ` + detected.encoding)
-            return detected.encoding
-        }
-
-        console.log(`Uint8Array decoding: using utf-8 fallback for ${this.fileName || ''} file.`)
-        return 'utf-8'
-    }
-
-    public getDecoder() { 
-        return new TextDecoder(this.detectEncoding())
-    }
-
-    public decode(encoding?: string) { 
-        if (encoding === 'auto' || !encoding) { return this.getDecoder().decode(this.uintArray) }
-        return new TextDecoder(encoding).decode(this.uintArray)
-    }
 }
 
 export class MyWASM { 
@@ -147,75 +112,5 @@ export class MyWASM {
         if (typeof file === "string" || file instanceof Uint8Array) { return file }
         else if (typeof file === "object") { return JSON.stringify(file) }
         return String(file)
-    }
-}
-
-export class VNTextPatch extends MyWASM { 
-    async execute(args: string[]) { 
-        const runtime = await this.dotnetRuntime
-        const exitCode = await runtime?.runMain('VNTextPatch.dll', args)
-        if (exitCode === 0) {
-            console.log('VNTextPatch completed successfully!');
-        } else {
-            console.log(`VNTextPatch exited with code: ${exitCode}`);
-        }
-    }
-
-    async extractLocal<T= ILineJSON[]>(files?: FileList): Promise<Record<string, T>> { 
-        const outputFiles = {} as Record<string, any>
-        const proxy = new Proxy(outputFiles, { 
-            get(target, prop: string, _) { return target[prop] },
-            set(target, prop: string, value, _) { 
-                try { target[prop] = JSON.parse(value) }
-                catch (e) { target[prop] = value }
-                return true
-            }
-        })
-        await this.addFiles({ 
-            files,
-            elementId: 'fileInput'
-        })
-            .then(() => this.execute(['extractlocal', 'input', 'output']))
-            .then(() => this.getOutputFiles(proxy))
-
-        
-        //console.log(outputFiles)
-        this.cleanDir('input'); this.cleanDir('output')
-        return outputFiles
-    }
-
-    async extractLocalAsSheets(files?: FileList) { 
-        const jsonFiles = await this.extractLocal<ILineJSON[]>(files)
-        const outputFiles = {} as Record<string, string[][]>
-        const char_names = new Set<string>()
-        for (const fileName in jsonFiles) { 
-            outputFiles[fileName.replace('.json', '')] = jsonFiles[fileName].map((line) => { 
-                if (line.name) { char_names.add(line.name) }
-                return [ line.message, '', '', '', '' ]
-            })
-        }
-
-        //console.log(jsonFiles)
-        outputFiles.char_names = []
-        char_names.forEach(name => { 
-            (outputFiles.char_names as Array<string[]>).push([ name, '', '', '', '' ])
-        })
-        return outputFiles as Record<string, string[][]>
-    }
-
-    async insertLocal(srcFiles: FileList, jsonFiles: Record<string, ILineJSON[]>) { 
-        await this.addFilesFromList(srcFiles, "src_files")
-        await this.addFilesFromObj(jsonFiles)
-
-
-        const patchedFiles = await this.execute([ 'insertlocal', 'src_files', 'input', 'output' ])
-            .then(() => this.getFolderFiles({ 
-                folderName: 'output',
-                encoding: 'auto'
-            }))
-
-        //console.log(patchedFiles)
-        this.cleanDir('input'); this.cleanDir('output'); this.cleanDir('src_files')
-        return patchedFiles
     }
 }
