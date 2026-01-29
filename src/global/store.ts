@@ -1,4 +1,4 @@
-import { createStore } from "solid-js/store";
+import { createStore, unwrap } from "solid-js/store";
 import type { Sheet } from "./ProjectRepo";
 
 
@@ -18,5 +18,11 @@ export function updateSheetContent(projectName: string, fileName: string, sheet:
     if (sheets_store[projectName]?.[fileName]) {
         setProjectSheets(projectName, fileName, "content", sheet)
         setProjectSheets(projectName, fileName, "translatedRows", sheet.filter(rows => rows.filter(c=>c).length > 1).length)
+    }
+}
+
+export function getSheetNames(projectName: string) {
+    if (sheets_store[projectName]) {
+        return Object.keys(unwrap(sheets_store)[projectName])
     }
 }

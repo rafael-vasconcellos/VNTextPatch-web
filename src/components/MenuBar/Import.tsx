@@ -1,8 +1,9 @@
 import { useParams } from "@solidjs/router";
+import { unwrap } from "solid-js/store";
 import type { JSX } from "solid-js"
 import Papa from "papaparse"
 import { useRepoContext } from "../../pages/context/repo"
-import { updateSheetContent } from "../../global/store";
+import { sheets_store, updateSheetContent } from "../../global/store";
 
 
 
@@ -35,17 +36,16 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
         files?.forEach(async handle => { 
             const sheetNames = await repo().getSheetNames()
             const fileNameWithExt = handle.name
-            const fileName = fileNameWithExt.replace('.csv', '')
-            if (!sheetNames.includes(fileName)) { return }
+            const csvFileName = fileNameWithExt.replace('.csv', '')
+            if (!sheetNames.includes(csvFileName)) { return }
             const file = await handle.getFile()
             const content = await parseCSV(await file.text())
             if (!content) { return }
 
 
             let updated = false
-            const prevSheet = (await repo().getSheet(fileName)).content
-            //console.log(sheets[fileName]?.content.length)
-            content.forEach(row => { 
+            const prevSheet = structuredClone(unwrap(sheets_store)[project_name]?.[csvFileName]?.content)
+            for (const row of content) {
                 row[0] = row[0]?.replaceAll('"', "").replaceAll(/\r?\n/g, "")
                 const [ original_text, ...translations ] = row ?? []
                 const prevIndex = prevSheet.findIndex(prevRow => prevRow[0]?.replaceAll(/\r?\n/g, "") === original_text)
@@ -58,9 +58,9 @@ export default function Import({ class: className }: JSX.ButtonHTMLAttributes<HT
                     prevSheet[prevIndex] = mergedRow
                     updated = true
                 }
-            })
+            }
 
-            if (updated) { updateSheetContent(project_name, fileName, prevSheet) ; console.log("updated!") }
+            if (updated) updateSheetContent(project_name, csvFileName, prevSheet)
         })
     }
 
