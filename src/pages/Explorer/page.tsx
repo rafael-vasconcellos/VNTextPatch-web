@@ -8,6 +8,8 @@ import MenuBar from "../../components/MenuBar"
 import SkeletonLoading from "../../components/SkeletonLoading"
 import SheetFooter from "../../components/SheetFooter"
 import type { Sheet as ISheet } from "../../global/ProjectRepo"
+import type { SelectedCell } from "../../components/DialoguePreview"
+import DialoguePreview from "../../components/DialoguePreview"
 
 
 
@@ -23,6 +25,7 @@ function getTranslatedPercent(sheet: ISheet) {
 
 export default function ExplorerPage({  }: ExplorerProps) { 
     const [ current_file, setCurrentFile ] = createSignal<string>('')
+    const [ selected_cell, setSelectedCell ] = createSignal<Partial<SelectedCell>>({})
     const [ repo ] = useRepoContext()
     const { project_name } = useParams()
 
@@ -63,11 +66,17 @@ export default function ExplorerPage({  }: ExplorerProps) {
                     </For>
                 </section>
                 <Show when={sheets_store[project_name]?.[current_file()]}>
-                    <Sheet sheet={sheets_store[project_name][current_file()]} onChange={({ sheet }) => { 
+                    <Sheet sheet={sheets_store[project_name][current_file()]} 
+                    onChange={({ sheet }) => { 
                         sheet && updateSheetContent(project_name, sheet.filename!, sheet.content!)
-                    }} />
+                    }}
+                    onSelection={({ row, col }) => setSelectedCell({ row, col })}
+                    onDeselect={() => setSelectedCell({})} />
                 </Show>
             </main>
+            <Show when={selected_cell().row !== undefined && selected_cell().col !== undefined}>
+                <DialoguePreview sheet={sheets_store[project_name]?.[current_file()]} selectedCell={selected_cell() as SelectedCell} />
+            </Show>
             <SheetFooter sheet={sheets_store[project_name]?.[current_file()]} />
         </Show>
     )

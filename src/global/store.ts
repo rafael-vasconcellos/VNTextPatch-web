@@ -26,3 +26,13 @@ export function getSheetNames(projectName: string) {
         return Object.keys(unwrap(sheets_store)[projectName])
     }
 }
+
+export function getCharNames(projectName: string): Record<string, string> { 
+    const char_names: Record<string, string> = {}
+    const sheet = sheets_store[projectName]?.["char_names"]?.content
+    sheet?.forEach(row => { 
+        row = row.filter(c=>c)
+        char_names[row[0]!] = row.at(-1)!
+    })
+    return char_names
+}
