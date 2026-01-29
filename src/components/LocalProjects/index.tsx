@@ -1,8 +1,9 @@
 import { For, Show } from "solid-js"
 import { createEffect } from "solid-js"
 import { projects, setProjects } from "../../global/utils"
-import './style.css'
 import SkeletonLoading from "../SkeletonLoading"
+import './style.css'
+
 
 
 interface LocalProjectsProps { 
@@ -10,18 +11,18 @@ interface LocalProjectsProps {
 }
 
 export default function LocalProjects({ onClick }: LocalProjectsProps) { 
-    createEffect(getProjects)
-
-    async function getProjects() { 
-        const dbs = await indexedDB.databases()
-        setProjects(dbs.map(db => db.name))
-    }
-
     function deleteProject(projectName: string) { 
+        setProjects(
+            projects()?.filter(p => p!==projectName) ?? []
+        )
         const request = indexedDB.deleteDatabase(projectName)
         request.onerror = () => console.error(request.error)
-        request.onsuccess = getProjects
     }
+
+    createEffect(async() => {
+        const dbs = await indexedDB.databases() as any[]
+        setProjects(dbs.map(db => db.name))
+    })
 
 
     return ( 
