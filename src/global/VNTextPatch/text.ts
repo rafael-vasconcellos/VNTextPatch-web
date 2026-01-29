@@ -4,10 +4,10 @@ import jschardet from 'jschardet';
 
 export class MyTextDecoder { 
     private uintArray: Uint8Array
-    private fileName?: string
-    constructor(uintArray: Uint8Array, fileName?: string) { 
+    private filename?: string
+    constructor(uintArray: Uint8Array, filename?: string) { 
         this.uintArray = uintArray
-        this.fileName = fileName
+        this.filename = filename
     }
 
     public detectEncoding() { 
@@ -15,11 +15,11 @@ export class MyTextDecoder {
         const detected = jschardet.detect(binaryString);
 
         if (detected.encoding) { 
-            console.log(`Detected encoding for ${this.fileName || ''}: ` + detected.encoding)
+            console.log(`Detected encoding for ${this.filename || ''}: ` + detected.encoding)
             return detected.encoding
         }
 
-        console.log(`Uint8Array decoding: using utf-8 fallback for ${this.fileName || ''} file.`)
+        console.log(`Uint8Array decoding: using utf-8 fallback for ${this.filename || ''} file.`)
         return 'utf-8'
     }
 

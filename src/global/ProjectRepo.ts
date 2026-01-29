@@ -4,19 +4,20 @@ import { Repo } from "./Repo"
 
 interface ProjectRepoInit { 
     srcFiles?: FileList | null
-    outputFiles?: Record<string, string[][]>
+    outputFiles?: Record<string, Sheet>
     projectName?: string
-}
-
-export interface StoreItem<T= any> { 
-    filename: string
-    content: T
 }
 
 export interface Sheet extends StoreItem<(string | null)[][]> {
     rows: number
     translatedRows: number
+    speakerNames?: string[]
     originalIndexes?: number[]
+}
+
+export interface StoreItem<T= any> { 
+    filename: string
+    content: T
 }
 
 interface EventMap { 
@@ -68,13 +69,9 @@ export class ProjectRepo extends Repo {
         this._isOpen = true
     }
 
-    private insertSheets(store: IDBObjectStore, outputFiles: Record<string, string[][]>) { 
-        for (const fileName in outputFiles) { 
-            store?.add({ 
-                filename: fileName,
-                content: outputFiles[fileName],
-                rows: outputFiles[fileName].length,
-            } as Sheet)
+    private insertSheets(store: IDBObjectStore, outputFiles: ProjectRepoInit['outputFiles']) { 
+        for (const filename in outputFiles) { 
+            store?.add(outputFiles[filename])
         }
     }
 
@@ -103,8 +100,8 @@ export class ProjectRepo extends Repo {
         return dataTransfer.files
     }
 
-    getSheet(fileName: string): Promise<Sheet> { 
-        return this.getStoreItem("sheets", fileName)
+    getSheet(filename: string): Promise<Sheet> { 
+        return this.getStoreItem("sheets", filename)
     }
 
     getSheets(): Promise<Sheet[]> { 

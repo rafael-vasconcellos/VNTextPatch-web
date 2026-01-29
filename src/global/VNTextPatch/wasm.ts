@@ -11,8 +11,8 @@ interface GetFolderOptions {
 export class MyWASM { 
     public isInitialized: boolean = false
     public dotnetRuntime?: Promise<any>
-    constructor() { // @ts-ignore
-        (window.importDotNet as Promise<any>)
+    constructor() { 
+        ((window as any).importDotNet as Promise<any>)
         .then(async({ dotnet }) => { 
             this.dotnetRuntime = dotnet.create()
         }).catch(e => { 
@@ -43,8 +43,8 @@ export class MyWASM {
     async getFolderFiles({ folderName, outputFiles, encoding }: GetFolderOptions) { 
         outputFiles ||= {}
         const fileSystem = await this.getFileSystem()
-        const fileNames = await fileSystem.readdir(folderName)
-        fileNames.forEach(async (folderItem: string) => { 
+        const filenames = await fileSystem.readdir(folderName)
+        filenames.forEach(async (folderItem: string) => { 
             const path_mode = fileSystem.stat(folderName + '/' + folderItem).mode
             if (folderItem !== '.' && folderItem != '..' && !fileSystem.isDir(path_mode)) { 
                 const file: Uint8Array = fileSystem.readFile(folderName + '/' + folderItem)
@@ -59,9 +59,9 @@ export class MyWASM {
         const fileSystem = await this.getFileSystem()
         if (!fileSystem.analyzePath(inputFolder)?.exists) { fileSystem.mkdir(inputFolder) }
         if (!fileSystem.analyzePath("output")?.exists) { fileSystem.mkdir("output") }
-        for (const fileName in files) {
-            const file = files[fileName]
-            fileSystem.writeFile(inputFolder + "/" + fileName, MyWASM.formatFile(file))
+        for (const filename in files) {
+            const file = files[filename]
+            fileSystem.writeFile(inputFolder + "/" + filename, MyWASM.formatFile(file))
         }
     }
 

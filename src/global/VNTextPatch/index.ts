@@ -1,4 +1,5 @@
 import { MyWASM } from "./wasm";
+import type { Sheet } from "../ProjectRepo";
 
 
 
@@ -18,7 +19,7 @@ export class VNTextPatch extends MyWASM {
         }
     }
 
-    async extractLocal<T= ILineJSON[]>(files?: FileList): Promise<Record<string, T>> { 
+    async extractLocal(files?: FileList): Promise<Record<string, ILineJSON[]>> { 
         const outputFiles = {} as Record<string, any>
         const proxy = new Proxy(outputFiles, { 
             get(target, prop: string, _) { return target[prop] },
@@ -41,23 +42,34 @@ export class VNTextPatch extends MyWASM {
         return outputFiles
     }
 
-    async extractLocalAsSheets(files?: FileList) { 
-        const jsonFiles = await this.extractLocal<ILineJSON[]>(files)
-        const outputFiles = {} as Record<string, string[][]>
-        const char_names = new Set<string>()
-        for (const fileName in jsonFiles) { 
-            outputFiles[fileName.replace('.json', '')] = jsonFiles[fileName].map((line) => { 
-                if (line.name) { char_names.add(line.name) }
-                return [ line.message, '', '', '', '' ]
+    async extractLocalAsSheets(files?: FileList): Promise<Record<string, Sheet>> { 
+        const jsonFiles = await this.extractLocal(files)
+        const outputFiles = {} as Record<string, Sheet>
+        const charNames = new Set<string>()
+        for (const filename in jsonFiles) { 
+            const content = jsonFiles[filename].map(lineObj => { 
+                if (lineObj.name) { charNames.add(lineObj.name) }
+                return [ lineObj.message, '', '', '', '' ]
             })
+            outputFiles[filename.replace('.json', '')] = {
+                content,
+                filename: filename.replace('.json', ''),
+                rows: content.length,
+                speakerNames: jsonFiles[filename].map(lineObj => lineObj.name)
+            } as Sheet
         }
 
         //console.log(jsonFiles)
-        outputFiles.char_names = []
-        char_names.forEach(name => { 
-            (outputFiles.char_names as Array<string[]>).push([ name, '', '', '', '' ])
+        outputFiles.char_names = {
+            filename: "char_names",
+            content: [] as string[][],
+            rows: 0,
+        } as Sheet
+        charNames.forEach(name => { 
+            outputFiles.char_names.content.push([ name, '', '', '', '' ])
+            outputFiles.char_names.rows += 1
         })
-        return outputFiles as Record<string, string[][]>
+        return outputFiles
     }
 
     async insertLocal(srcFiles: FileList, jsonFiles: Record<string, ILineJSON[]>) { 
