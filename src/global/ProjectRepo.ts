@@ -11,7 +11,7 @@ interface ProjectRepoInit {
 export interface Sheet extends StoreItem<(string | null)[][]> {
     rows: number
     translatedRows: number
-    speakerNames?: string[]
+    speakerNames: (string | undefined)[]
     originalIndexes?: number[]
 }
 
@@ -121,6 +121,7 @@ export class ProjectRepo extends Repo {
         const data = { 
             filename: sheet.filename,
             content: sheet.content,
+            speakerNames: sheet.speakerNames,
             rows: sheet.rows ?? sheet.content.length,
             translatedRows: sheet.translatedRows ?? sheet.content.filter(rows => rows.filter(c=>c).length > 1).length
         } as Sheet

@@ -15,9 +15,9 @@ export default function MenuBar() {
             <Save class="size-7" />
             <Search class="size-8" />
             <Translate class="size-8" />
+            <Inject class="size-8" />
             <Import class="size-8" />
             <Export class="size-8" />
-            <Inject class="size-8" />
             <GithubStats />
         </section>
     )
