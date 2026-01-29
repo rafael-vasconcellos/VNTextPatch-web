@@ -39,7 +39,7 @@ interface SheetProps {
 export default function Sheet(props: SheetProps) { 
     let section: HTMLElement | undefined
 
-    createEffect(() => { //console.log(sheet())
+    createEffect(() => { 
         if (props.sheet?.content instanceof Array && props.sheet?.content?.[0] instanceof Array && section) { 
             section.innerHTML = ''
             const hot = new Handsontable(section, { 
@@ -50,7 +50,7 @@ export default function Sheet(props: SheetProps) {
                 colHeaders: ["Original Text", "Initial", "Machine Translation", "Better Translation", "Best Translation"],
                 afterChange(change, source) {
                     if (source === 'loadData' || !change) { return }
-                    //console.log(change)
+                    //console.log(props.sheet?.content)
                 },
                 afterSelection(row, col, row2, col2) {
                     if (row===row2 && col===col2 && props.onSelection)
@@ -59,7 +59,7 @@ export default function Sheet(props: SheetProps) {
                 afterDeselect() { props.onDeselect && props.onDeselect() },
                 autoWrapRow: true,
                 autoWrapCol: true,
-                data: unwrap(props.sheet!.content),
+                data: structuredClone(unwrap(props.sheet!.content)),
                 columns: [
                     {
                         data: 0,
