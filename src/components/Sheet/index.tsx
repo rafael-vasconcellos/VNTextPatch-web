@@ -82,11 +82,11 @@ export default function Sheet(props: SheetProps) {
             });
 
             hot.addHook('afterChange', (changes, _) => { 
-                changes?.forEach(change => { 
+                /* changes?.forEach(change => { 
                     const [ row, col, _, value ] = change
                     if (col===0 && !value) { hot.alter('remove_row', row) }
                     //console.log(_) // _ = prevValue
-                });
+                }); */
                 props.onChange && props.sheet && props.onChange({
                     sheet: {
                         ...props.sheet,

@@ -1,8 +1,7 @@
 import { useParams } from "@solidjs/router"
 import { createSignal, Show, type JSX } from "solid-js"
-import { unwrap } from "solid-js/store"
 import { useRepoContext } from "../../pages/context/repo"
-import { sheets_store } from "../../global/store"
+import { getJsonFiles } from "../../global/store"
 import { downloadObjFiles, vn } from '../../global/utils'
 import FeedBack from "../Feedback"
 
@@ -14,34 +13,10 @@ export default function Inject({ class: className }: JSX.ButtonHTMLAttributes<HT
     const [ repo ] = useRepoContext()
 
     async function inject() { 
-        const [ { jsonFiles, fileList }, sheets, char_names ] = await Promise.all([ 
-            repo().getSrcFileList()
-                .then(async fileList => ({ 
-                    fileList,
-                    jsonFiles: await vn().extractLocal(fileList),
-                })), 
-
-            Object.keys(unwrap(sheets_store[project_name])).length? 
-                Promise.resolve(unwrap(sheets_store[project_name])) : repo().getSheetsMap(),
-            
-            repo().getCharNames()
+        const [ fileList, jsonFiles ] = await Promise.all([ 
+            repo().getSrcFileList(), 
+            Promise.resolve(getJsonFiles(project_name)),
         ])
-
-        //console.log(sheets); //console.log(jsonFiles)
-        for (let fileName in sheets) { //console.log(fileName)
-            if (fileName === "char_names") continue
-            if (sheets[fileName].content.length !== jsonFiles[fileName + '.json'].length) { 
-                throw new Error(fileName + ' ' + "sheet is incompatible with original game files.")
-            }
-            for (let i=0; i<sheets[fileName].content.length; i++) { 
-                const messages = sheets[fileName].content[i].filter(m => m)
-                const line = jsonFiles[fileName + '.json'][i]
-                line.message = messages.at(-1) ?? messages[0] ?? ""
-                if (char_names[line.name] && char_names[line.name] !== line.name) { 
-                    line.name = char_names[line.name] 
-                }
-            }
-        }
 
         //console.log(jsonFiles)
         const patched_files = await vn().insertLocal(fileList, jsonFiles)

@@ -1,5 +1,7 @@
 import { createStore, unwrap } from "solid-js/store";
 import type { Sheet } from "./ProjectRepo";
+import type { ILineJSON } from "./VNTextPatch";
+
 
 
 export const [ sheets_store, setProjectSheets ] = createStore<Record<string, Record<string, Sheet>>>({})
@@ -35,4 +37,25 @@ export function getCharNames(projectName: string): Record<string, string> {
         char_names[row[0]!] = row.at(-1)!
     })
     return char_names
+}
+
+export function getJsonFiles(projectName: string): Record<string, ILineJSON[]> {
+    const jsonFiles = {} as Record<string, ILineJSON[]>
+    const char_names = getCharNames(projectName)
+    for (const sheetName in sheets_store[projectName]) {
+        if (sheetName==="char_names") continue
+        const jsonFileName = sheetName + ".json"
+        jsonFiles[jsonFileName] = []
+        const sheet = sheets_store[projectName][sheetName]
+        for (let i=0; i<sheet.content.length; i++) { 
+            const filtered_row = sheet.content[i].filter(c=>c)
+            const speaker_name = sheet.speakerNames[i]
+            jsonFiles[jsonFileName][i] = { 
+                message: filtered_row.at(-1)!
+            }
+            if (speaker_name) jsonFiles[jsonFileName][i].name = char_names[speaker_name]
+        }
+    }
+
+    return jsonFiles
 }

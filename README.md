@@ -15,6 +15,5 @@ For use it, you'll have to extract the source files using a tool like [GARbro](h
 
 ## todo
 
-- feat: add output JSON build
 - feat: add config settings to translators
 - fix import performance

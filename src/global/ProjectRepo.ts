@@ -133,6 +133,7 @@ export class ProjectRepo extends Repo {
         const char_names: Record<string, string> = {}
         const sheet: (string | null)[][] | undefined = await this.getSheet("char_names").then(store => store?.content)
         sheet?.forEach(row => { 
+            row = row.filter(c=>c)
             char_names[row[0]!] = row.at(-1)!
         })
         return char_names

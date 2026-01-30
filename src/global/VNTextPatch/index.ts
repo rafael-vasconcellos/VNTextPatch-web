@@ -3,8 +3,8 @@ import type { Sheet } from "../ProjectRepo";
 
 
 
-interface ILineJSON { 
-    name: string
+export interface ILineJSON { 
+    name?: string
     message: string
 }
 
