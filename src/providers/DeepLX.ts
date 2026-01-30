@@ -1,12 +1,9 @@
-import type { TranslatorConstructor, TranslatorEngine } from "../global/Translator/config"
-import { EngineCore } from "../global/Translator/enginecore"
+import { EngineCore } from "../global/Translator/engine/core"
+import type { TranslatorEngine } from "../global/Translator/engine/config"
 
 
 
-export const DeepLX: TranslatorConstructor = class extends EngineCore implements TranslatorEngine {
-    public targetLanguage: string = "en"
-    public batchSize: number = 25
-
+export class DeepLX extends EngineCore implements TranslatorEngine {
     private async handler(text: string): Promise<string | null> { 
         return await fetch("https://deep-lx-vercel-coral.vercel.app/api/translate", { 
             method: "POST",

@@ -1,19 +1,11 @@
-export interface TranslatorEngineInit {
-    batchSize: number
-    targetLanguage: string
-}
+import type { TranslatorEngine, TranslatorEngineInit } from "./engine/config"
 
-export interface TranslatorEngine extends TranslatorEngineInit {
-    translate(texts: (string | null)[]): Promise<string[]>
-}
+
 
 export interface TranslatorConstructor {
     new(init?: TranslatorEngineInit): TranslatorEngine
     Build(init?: TranslatorEngineInit): TranslatorEngine
 }
-
-
-
 
 export class TranslationConfig { 
     public static get ignoreTranslated(): boolean {

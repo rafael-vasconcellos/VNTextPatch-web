@@ -1,12 +1,14 @@
-import type { TranslatorEngine } from "../global/Translator/config"
-import { EngineCore } from "../global/Translator/enginecore"
+import { TranslatorEngineConfig, type TranslatorEngine } from "../global/Translator/engine/config"
+import { EngineCore } from "../global/Translator/engine/core"
+
 
 
 export class Google extends EngineCore implements TranslatorEngine {
-    public batchSize: number = 150
-    public targetLanguage: string = "en"
+    public config = new TranslatorEngineConfig({
+        batchSize: 150,
+        targetLanguage: "en"
+    })
     public delimiter: string = "\n<br>\n"
-
     private readonly maxRequestsPerMinute: number = 30
     private readonly timeWindowMs: number = 60000 // 1 minuto em ms
     private requestTimestamps: number[] = []
@@ -42,7 +44,7 @@ export class Google extends EngineCore implements TranslatorEngine {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
-                to: this.targetLanguage,
+                to: this.config.targetLanguage.value as string,
                 text
             })
         })
