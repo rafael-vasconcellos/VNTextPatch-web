@@ -77,10 +77,16 @@ export class Translator {
         for (const sheetName of sheetNames) {
             if (this.abortFlag) return Promise.resolve()
             const sheet = await this.repo.getSheet(sheetName)
-            await this.translateSheet(sheet)
-                .then(() => updateSheetContent(this.repo!.projectName!, sheet.filename, sheet.content))
-                .then(() => console.log(sheets_store[this.repo!.projectName!]?.[sheet.filename]))
-                .catch(e => !(e instanceof TranslationAbortedException) && console.error(e))
+            if (sheet.content) {
+                await this.translateSheet(sheet)
+                    .then(() => updateSheetContent(this.repo!.projectName!, sheet.filename, sheet.content))
+                    .then(() => console.log(sheets_store[this.repo!.projectName!]?.[sheet.filename]))
+                    .catch(e => {
+                        if (!(e instanceof TranslationAbortedException)) { console.log(sheetName)
+                            console.error(e)
+                        }
+                    })
+            }
         }
 
         if (!this.abortFlag) this.emitter.dispatchCustomEvent("translationDone")
@@ -112,7 +118,7 @@ export class Translator {
             this.emitter.dispatchCustomEvent("batchTranslate", {
                 filename: sheet.filename,
                 start: startIndex+1,
-                end: endIndex+1,
+                end: endIndex,
                 length: sheet.content.length,
             } as MyCustomEvent['detail'])
 
