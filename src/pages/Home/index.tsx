@@ -7,38 +7,41 @@ import ProjectName from '../../components/UploadFiles/ProjectName'
 import LocalProjects from '../../components/LocalProjects'
 import Contribute from '../../components/Contribute'
 import GithubStats from '../../components/GithubStats'
+import SkeletonLoading from '../../components/SkeletonLoading'
 
 
 
 export default function App() { 
-    const repo = new ProjectRepo()
-    const navigate = useNavigate()
     const [ project_name, setProjectName ] = createSignal('')
     const [ src_files, setSrcFiles ] = createSignal<FileList>()
+    const [ isLoading, setIsLoading ] = createSignal(false)
+    const navigate = useNavigate()
+    const repo = new ProjectRepo()
     let fileInput: HTMLInputElement | undefined
 
     createEffect(async() => { 
         if (src_files()?.length && project_name()) { 
+            setIsLoading(true)
             repo.create({ 
                 projectName: project_name(),
                 outputFiles: await vn().extractLocalAsSheets(src_files()),
                 srcFiles: src_files()
-            }).then(() => navigate("/" + project_name()))
+            })
+            .then(() => setIsLoading(false))
+            .then(() => navigate("/" + project_name()))
         }
 
     })
 
 
     return ( 
-        <>
+        <Show when={!isLoading()} fallback={<SkeletonLoading class="h-full absolute top-0" />}>
             <GithubStats />
             <section class='w-screen py-20 flex flex-col items-center gap-28'>
                 <div class='mb-28'>
-                    <Show when={!src_files()?.length}>
-                        <UploadFiles ref={fileInput} onChange={() => { 
-                            if (fileInput?.files?.length) { setSrcFiles(fileInput.files) }
-                        }} />
-                    </Show>
+                    <UploadFiles ref={fileInput} onChange={() => { 
+                        if (fileInput?.files?.length && !src_files()?.length) { setSrcFiles(fileInput.files) }
+                    }} />
                     <LocalProjects onClick={projectName => navigate("/" + projectName)}/>
                 </div>
                 <Contribute />
@@ -49,7 +52,7 @@ export default function App() {
                     setProjectName(name)
                 }} />
             </Show>
-        </>
+        </Show>
     )
 }
 
