@@ -19,8 +19,8 @@ export interface TranslatorConstructor {
 
 export class TranslatorEngineOption<T=any> {
     public value: T
-    public label: string
-    public description: string
+    public readonly label: string
+    public readonly description: string
     constructor(
         value: T,
         label: string,

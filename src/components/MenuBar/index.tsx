@@ -1,4 +1,5 @@
 import GithubStats from "../GithubStats";
+import Config from "./Config";
 import Export from "./Export";
 import Import from "./Import";
 import Inject from "./Inject";
@@ -18,6 +19,7 @@ export default function MenuBar() {
             <Inject class="size-8" />
             <Import class="size-8" />
             <Export class="size-8" />
+            <Config class="size-8" />
             <GithubStats />
         </section>
     )

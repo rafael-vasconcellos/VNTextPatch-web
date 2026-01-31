@@ -1,11 +1,10 @@
-import { DeepLX } from "./DeepLX";
 import { Google } from "./Google";
 
 
 
 const translators = {
-    DeepLX,
-    Google
+    Google,
+    //DeepLX,
 }
 
 export type TranslatorNames = keyof typeof translators

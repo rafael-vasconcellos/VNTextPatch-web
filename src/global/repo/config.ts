@@ -1,15 +1,10 @@
 import { Repo } from "./core";
 import type { TranslatorEngineInit } from "../Translator/engine/config";
-import type { TranslatorNames } from "../../providers";
 
 
 
 interface TranslatorConfigStore extends TranslatorEngineInit {
-    translatorName: TranslatorNames
-}
-
-interface PartialTranslatorConfigStore extends Partial<TranslatorEngineInit> {
-    translatorName: TranslatorNames
+    translatorName: string
 }
 
 export class ConfigRepo extends Repo {
@@ -32,13 +27,23 @@ export class ConfigRepo extends Repo {
 
     async getTranslatorConfig(translatorName: string): Promise<Partial<TranslatorConfigStore>> {
         if (!this.isOpen) await this.open()
-        return this.getStoreItem("translator_engines", translatorName)
+        const config = await this.getStoreItem("translator_engines", translatorName)
+        return {
+            translatorName,
+            ...config
+        }
     }
 
-    async setTranslatorConfig(newConfig: PartialTranslatorConfigStore) {
-        const config = await this.getTranslatorConfig(newConfig.translatorName)
-        newConfig = Object.assign(config, newConfig)
-        this.updateStoreItem("translator_engines", newConfig)
+    async getTranslatorConfigOption<T=any>(translatorName: string, optionName: string, defaultValue: T) {
+        const config = await this.getTranslatorConfig(translatorName)
+        return config[optionName as keyof TranslatorEngineInit] || defaultValue
+    }
+
+    async setTranslatorConfig(translatorName: string, optionName: string, newValue: any) {
+        const config = await this.getTranslatorConfig(translatorName)
+        config[optionName as keyof TranslatorConfigStore] = newValue
+        //console.log(config)
+        this.updateStoreItem("translator_engines", config)
     }
 
 }
