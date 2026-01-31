@@ -1,12 +1,3 @@
-import type { TranslatorEngine, TranslatorEngineInit } from "./engine/config"
-
-
-
-export interface TranslatorConstructor {
-    new(init?: TranslatorEngineInit): TranslatorEngine
-    Build(init?: TranslatorEngineInit): TranslatorEngine
-}
-
 export class TranslationConfig { 
     public static get ignoreTranslated(): boolean {
         const strValue = sessionStorage.getItem("ignoreTranslated") ?? "1"

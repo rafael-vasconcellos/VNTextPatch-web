@@ -1,14 +1,14 @@
-import type { TranslatorConstructor } from "../global/Translator/config";
+import type { TranslatorConstructor } from "../global/Translator/engine/config";
 //import type { EngineCore } from "../global/Translator/enginecore";
 import { DeepLX } from "./DeepLX";
 import { Google } from "./Google";
 
 
 
-const translators: Record<string, TranslatorConstructor> = {
+const translators = {
     DeepLX,
     Google
-}
+} as unknown as Record<string, TranslatorConstructor>
 
 export function getTranslator(translatorName: string) {
     if (translatorName in translators) return translators[translatorName as keyof typeof translators]

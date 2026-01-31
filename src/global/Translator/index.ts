@@ -96,9 +96,10 @@ export class Translator {
     }
 
     async translateSheet(sheet: Sheet) {
-        for (let startIndex=0; startIndex<sheet.content.length; startIndex+=this.engine!.batchSize) {
+        const batchSize = await this.engine!.batchSize()
+        for (let startIndex=0; startIndex<sheet.content.length; startIndex+=batchSize) {
             if (this.abortFlag) throw new TranslationAbortedException()
-            const endIndex = Math.min(startIndex + this.engine!.batchSize, sheet.content.length)
+            const endIndex = Math.min(startIndex + batchSize, sheet.content.length)
             const slice: {
                 index: number
                 row: (string | null)[]

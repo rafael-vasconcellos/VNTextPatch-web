@@ -44,7 +44,7 @@ export class Google extends EngineCore implements TranslatorEngine {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
-                to: this.config.targetLanguage.value as string,
+                to: await this.targetLanguage(),
                 text
             })
         })

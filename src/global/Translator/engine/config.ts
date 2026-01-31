@@ -3,9 +3,16 @@ export interface TranslatorEngineInit {
     targetLanguage: string
 }
 
-export interface TranslatorEngine extends TranslatorEngineInit {
+export interface TranslatorEngine {
     config: TranslatorEngineConfig
     translate(texts: (string | null)[]): Promise<string[]>
+    batchSize(): Promise<TranslatorEngineInit['batchSize']>
+    targetLanguage(): Promise<TranslatorEngineInit['targetLanguage']>
+}
+
+export interface TranslatorConstructor {
+    //new(init?: TranslatorEngineInit): TranslatorEngine
+    Build(): TranslatorEngine
 }
 
 export class TranslatorEngineOption<T=any> {

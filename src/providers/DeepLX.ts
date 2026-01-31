@@ -10,7 +10,7 @@ export class DeepLX extends EngineCore implements TranslatorEngine {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 text,
-                target_lang: this.targetLanguage
+                target_lang: await this.targetLanguage()
             })
         }).then(response => {
             if (response.ok) return response.json()
