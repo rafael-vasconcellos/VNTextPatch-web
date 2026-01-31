@@ -1,6 +1,6 @@
 import { useParams } from "@solidjs/router";
 import { createContext, createSignal, useContext, type Accessor, type Setter } from "solid-js";
-import { ProjectRepo } from "../../global/ProjectRepo";
+import { ProjectRepo } from "../../global/repo/project";
 
 
 interface RepoContextProviderProps { 

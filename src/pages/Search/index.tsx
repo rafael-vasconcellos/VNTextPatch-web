@@ -1,9 +1,9 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
 import { unwrap } from "solid-js/store";
-import { ProjectRepo } from "../../global/ProjectRepo";
+import { ProjectRepo } from "../../global/repo/project";
 import { sheets_store, updateSheetContent, setSheets, setProjectSheets } from "../../global/store";
-import type { Sheet as ISheet } from "../../global/ProjectRepo";
+import type { Sheet as ISheet } from "../../global/repo/project";
 import Sheet from "../../components/Sheet";
 
 

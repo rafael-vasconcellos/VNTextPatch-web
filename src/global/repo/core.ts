@@ -2,7 +2,7 @@ export abstract class Repo {
     protected _isOpen: boolean = false
     protected request?: IDBOpenDBRequest
 
-    abstract create(init?: any): void
+    abstract create(init?: Record<string, any>): void
     abstract open(): void
 
     get isOpen() { return this._isOpen }

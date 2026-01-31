@@ -1,5 +1,5 @@
 import { MyWASM } from "./wasm";
-import type { Sheet } from "../ProjectRepo";
+import type { Sheet } from "../repo/project";
 
 
 

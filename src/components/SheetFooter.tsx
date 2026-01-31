@@ -1,4 +1,4 @@
-import type { Sheet } from "../global/ProjectRepo"
+import type { Sheet } from "../global/repo/project"
 
 
 interface SheetFooterProps {

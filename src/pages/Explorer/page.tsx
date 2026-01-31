@@ -7,7 +7,7 @@ import Sheet from "../../components/Sheet"
 import MenuBar from "../../components/MenuBar"
 import SkeletonLoading from "../../components/SkeletonLoading"
 import SheetFooter from "../../components/SheetFooter"
-import type { Sheet as ISheet } from "../../global/ProjectRepo"
+import type { Sheet as ISheet } from "../../global/repo/project"
 import type { SelectedCell } from "../../components/DialoguePreview"
 import DialoguePreview from "../../components/DialoguePreview"
 

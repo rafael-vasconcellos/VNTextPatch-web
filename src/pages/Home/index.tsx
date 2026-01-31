@@ -1,6 +1,6 @@
 import { useNavigate } from '@solidjs/router'
 import { createEffect, createSignal, Show } from 'solid-js'
-import { ProjectRepo } from '../../global/ProjectRepo'
+import { ProjectRepo } from '../../global/repo/project'
 import { projects, vn } from '../../global/utils'
 import UploadFiles from '../../components/UploadFiles'
 import ProjectName from '../../components/UploadFiles/ProjectName'

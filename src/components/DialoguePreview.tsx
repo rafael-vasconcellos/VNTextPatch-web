@@ -1,7 +1,7 @@
 import { useParams } from "@solidjs/router"
 import { createEffect } from "solid-js"
 import { getCharNames } from "../global/store"
-import type { Sheet } from "../global/ProjectRepo"
+import type { Sheet } from "../global/repo/project"
 
 
 

@@ -1,6 +1,6 @@
 import { TranslationConfig } from "./config";
 import { sheets_store, updateSheetContent } from "../store"
-import type { ProjectRepo, Sheet } from "../ProjectRepo";
+import type { ProjectRepo, Sheet } from "../repo/project";
 import type { TranslatorEngine } from "./engine/config";
 
 

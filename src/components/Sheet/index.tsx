@@ -1,7 +1,7 @@
 import { createEffect } from 'solid-js';
 import { unwrap } from "solid-js/store";
 import Handsontable from 'handsontable';
-import type { Sheet } from '../../global/ProjectRepo';
+import type { Sheet } from '../../global/repo/project';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
 import './style.css';

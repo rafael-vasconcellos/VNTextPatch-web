@@ -1,5 +1,5 @@
 import { createStore, unwrap } from "solid-js/store";
-import type { Sheet } from "./ProjectRepo";
+import type { Sheet } from "./repo/project";
 import type { ILineJSON } from "./VNTextPatch";
 
 
