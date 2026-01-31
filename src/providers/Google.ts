@@ -1,9 +1,9 @@
-import { TranslatorEngineConfig, type TranslatorEngine } from "../global/Translator/engine/config"
+import { TranslatorEngineConfig } from "../global/Translator/engine/config"
 import { EngineCore } from "../global/Translator/engine/core"
 
 
 
-export class Google extends EngineCore implements TranslatorEngine {
+export class Google extends EngineCore {
     public translatorName: string = "Google"
     public config = new TranslatorEngineConfig({
         batchSize: 150,

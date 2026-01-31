@@ -68,7 +68,10 @@ function TranslationSettingsWidget() {
         translator.on("batchTranslate", ({ detail: data }) => {
             Log.Add(`Translating ${data.filename}: ${data.end}/${data.length}`)
         })
-        translator.on("translationDone", () => setStatus(2))
+        translator.on("translationDone", () => {
+            setStatus(2)
+            Log.Add("Done!")
+        })
         await translator.translate(sheetNames)
         //setStatus(false)
     }
