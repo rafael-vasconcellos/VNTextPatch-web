@@ -20,8 +20,8 @@ export default function LocalProjects({ onClick }: LocalProjectsProps) {
     }
 
     createEffect(async() => {
-        const dbs = await indexedDB.databases() as any[]
-        setProjects(dbs.map(db => db.name))
+        const dbs: string[] = (await indexedDB.databases() as any[]).map(db => db.name)
+        setProjects(dbs.filter(name => name !== "config"))
     })
 
 

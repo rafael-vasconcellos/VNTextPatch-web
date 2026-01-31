@@ -4,6 +4,7 @@ import { EngineCore } from "../global/Translator/engine/core"
 
 
 export class Google extends EngineCore implements TranslatorEngine {
+    public translatorName: string = "Google"
     public config = new TranslatorEngineConfig({
         batchSize: 150,
         targetLanguage: "en"

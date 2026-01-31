@@ -1,13 +1,23 @@
-import { TranslatorEngineConfig, type TranslatorEngine } from "./config"
+import { TranslatorEngineConfig, type TranslatorConstructor, type TranslatorEngine } from "./config"
+import { ConfigRepo } from "../../repo/config"
 
 
-export class EngineCore implements Omit<TranslatorEngine, 'translate'> {
-    public static Build() {
+export abstract class EngineCore implements TranslatorEngine {
+    public static Build(this: TranslatorConstructor) {
         return new this()
     }
 
+    abstract translatorName: string
+    abstract translate(texts: (string | null)[]): Promise<string[]>
     public config = new TranslatorEngineConfig()
-    async batchSize() { return this.config.batchSize.value }
-    async targetLanguage() { return this.config.targetLanguage.value }
+    private configRepo = new ConfigRepo()
+    async batchSize() { 
+        const config = await this.configRepo.getTranslatorConfig(this.translatorName)
+        return config.batchSize || this.config.batchSize.value 
+    }
+    async targetLanguage() { 
+        const config = await this.configRepo.getTranslatorConfig(this.translatorName)
+        return config.targetLanguage || this.config.targetLanguage.value 
+    }
 }
 

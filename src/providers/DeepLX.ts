@@ -4,6 +4,7 @@ import type { TranslatorEngine } from "../global/Translator/engine/config"
 
 
 export class DeepLX extends EngineCore implements TranslatorEngine {
+    public translatorName: string = "DeepLX"
     private async handler(text: string): Promise<string | null> { 
         return await fetch("https://deep-lx-vercel-coral.vercel.app/api/translate", { 
             method: "POST",

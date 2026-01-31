@@ -4,6 +4,7 @@ export interface TranslatorEngineInit {
 }
 
 export interface TranslatorEngine {
+    translatorName: string
     config: TranslatorEngineConfig
     translate(texts: (string | null)[]): Promise<string[]>
     batchSize(): Promise<TranslatorEngineInit['batchSize']>
@@ -12,6 +13,7 @@ export interface TranslatorEngine {
 
 export interface TranslatorConstructor {
     //new(init?: TranslatorEngineInit): TranslatorEngine
+    new(): TranslatorEngine
     Build(): TranslatorEngine
 }
 
