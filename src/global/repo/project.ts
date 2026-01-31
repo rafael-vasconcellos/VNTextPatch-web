@@ -20,18 +20,8 @@ export interface StoreItem<T= any> {
     content: T
 }
 
-interface EventMap { 
-    sheetimport: (e: {data: Sheet}) => void
-}
-
 export class ProjectRepo extends Repo { 
     public projectName?: string
-    private eventListeners: {
-        [K in keyof EventMap]: EventMap[K][];
-    } = {
-        sheetimport: []
-    };
-    private static EventNames: (keyof EventMap)[] = ["sheetimport"]
     constructor(projectName?: string) { 
         super()
         if (projectName) { this.projectName = projectName }
@@ -149,20 +139,6 @@ export class ProjectRepo extends Repo {
         response.onsuccess = () => resolve(response.result)
         response.onerror = () => reject(response.error)
         return promise as Promise<string[]>
-    }
-
-    addEventListener<K extends keyof EventMap>(eventName: keyof EventMap, handler: EventMap[K]) {
-        if (ProjectRepo.EventNames.includes(eventName)) { 
-            if (!this.eventListeners[eventName]) { this.eventListeners[eventName] = [] }
-            this.eventListeners[eventName].push(handler)
-        }
-    }
-
-    removeEventListener(eventName: keyof EventMap, handler: any) {
-        if (ProjectRepo.EventNames.includes(eventName)) {
-            const index = this.eventListeners[eventName].indexOf(handler)
-            this.eventListeners[eventName].splice(index, 1)
-        }
     }
 
 }
