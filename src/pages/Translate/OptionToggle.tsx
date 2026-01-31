@@ -14,7 +14,11 @@ export default function OptionToggle({ title, children, id, handler, defaultValu
                 <p class="text-zinc-400">{children}</p>
             </label>
             <input class="w-7 text-primary" type="range" id={id} min={0} max={1} value={defaultValue? 1 : 0}
-            onChange={e => handler && handler(e.currentTarget)} />
+            onMouseDown={e => e.preventDefault()}
+            onClick={e => { 
+                e.currentTarget.value = e.currentTarget.value==='0'? '1':'0'
+                handler && handler(e.currentTarget)
+            }} />
         </div>
     )
 }
